@@ -61,7 +61,7 @@ end
 -- ============================================================================
 
 -- Theme and colors
-config.color_scheme = 'Tokyo Night'
+config.color_scheme = 'Solarized Dark'
 config.window_background_opacity = 0.95
 config.macos_window_background_blur = 10
 
@@ -333,6 +333,276 @@ config.launch_menu = launch_menu
 config.max_fps = 120
 config.animation_fps = 60
 config.cursor_blink_rate = 500
+
+-- ============================================================================
+-- THEME-ADAPTIVE STATUS BAR CONFIGURATION
+-- ============================================================================
+-- This version automatically adapts to ANY WezTerm color scheme you use
+
+-- Function to get theme colors from current color scheme
+local function get_theme_colors()
+  -- Get the resolved color palette from WezTerm
+  local scheme = wezterm.color.get_builtin_schemes()[wezterm.gui.get_appearance():find("Dark") and "Solarized Dark" or "Solarized Light"]
+  
+  -- If we can't get the scheme, use adaptive colors based on the current appearance
+  local appearance = wezterm.gui.get_appearance()
+  local is_dark = appearance:find("Dark")
+  
+  if is_dark then
+    return {
+      -- Dark theme adaptive colors
+      status_bg = "#404040",      -- Neutral dark gray
+      status_fg = "#d0d0d0",      -- Light gray text
+      accent_bg = "#0080ff",      -- Blue accent
+      accent_fg = "#ffffff",      -- White text on accent
+      muted_fg = "#808080",       -- Muted gray
+    }
+  else
+    return {
+      -- Light theme adaptive colors  
+      status_bg = "#e0e0e0",      -- Light gray
+      status_fg = "#404040",      -- Dark gray text
+      accent_bg = "#0066cc",      -- Darker blue for light themes
+      accent_fg = "#ffffff",      -- White text on accent
+      muted_fg = "#606060",       -- Muted dark gray
+    }
+  end
+end
+
+-- Enhanced function that gets colors dynamically
+local function get_adaptive_colors(window)
+  local config = window:effective_config()
+  local resolved_palette = config.resolved_palette
+  
+  -- Use the actual theme colors when available
+  if resolved_palette then
+    return {
+      status_bg = resolved_palette.background,
+      status_fg = resolved_palette.foreground,
+      accent_bg = resolved_palette.ansi[5] or resolved_palette.cursor_bg, -- Use magenta or cursor color
+      accent_fg = resolved_palette.background,
+      muted_fg = resolved_palette.ansi[8] or resolved_palette.brights[1], -- Use bright black
+    }
+  else
+    -- Fallback to adaptive colors
+    return get_theme_colors()
+  end
+end
+
+-- ============================================================================
+-- THEME-ADAPTIVE STATUS BAR FUNCTIONS
+-- ============================================================================
+
+-- Function to get contextual information (same as before)
+local function get_contextual_info(window, pane)
+  local cwd = pane:get_current_working_directory()
+  local process = pane:get_foreground_process_name()
+  local tab = window:active_tab()
+  local tab_count = #window:tabs()
+  local pane_count = #tab:panes()
+  
+  -- Extract project name
+  local project = "~"
+  if cwd then
+    local path = cwd:gsub('file://[^/]*', '')
+    local github_project = path:match('/Documents/GitHub/([^/]+)')
+    if github_project then
+      project = github_project
+    else
+      project = path:match('/([^/]+)$') or "~"
+    end
+  end
+  
+  -- Enhanced process detection with more languages
+  local proc_icon = "⚡"
+  local proc_name = "shell"
+  if process then
+    local lower_process = process:lower()
+    if lower_process:find("nvim") then 
+      proc_icon = ""
+      proc_name = "nvim"
+    elseif lower_process:find("git") then 
+      proc_icon = ""
+      proc_name = "git"
+    elseif lower_process:find("python") then 
+      proc_icon = "🐍"
+      proc_name = "python"
+    elseif lower_process:find("node") then 
+      proc_icon = ""
+      proc_name = "node"
+    elseif lower_process:find("nu") then 
+      proc_icon = "🚀"
+      proc_name = "nushell"
+    elseif lower_process:find("gcc") or lower_process:find("g++") or lower_process:find("clang") then
+      proc_icon = ""
+      proc_name = "cpp"
+    elseif lower_process:find("tsc") then
+      proc_icon = "󰛦"
+      proc_name = "typescript"
+    elseif lower_process:find("cargo") or lower_process:find("rust") then
+      proc_icon = ""
+      proc_name = "rust"
+    elseif lower_process:find("go") then
+      proc_icon = ""
+      proc_name = "go"
+    elseif lower_process:find("java") then
+      proc_icon = ""
+      proc_name = "java"
+    elseif lower_process:find("php") then
+      proc_icon = ""
+      proc_name = "php"
+    elseif lower_process:find("ruby") then
+      proc_icon = ""
+      proc_name = "ruby"
+    elseif lower_process:find("swift") then
+      proc_icon = ""
+      proc_name = "swift"
+    elseif lower_process:find("kotlin") then
+      proc_icon = ""
+      proc_name = "kotlin"
+    elseif lower_process:find("dart") then
+      proc_icon = ""
+      proc_name = "dart"
+    elseif lower_process:find("cmake") then
+      proc_icon = ""
+      proc_name = "cmake"
+    elseif lower_process:find("make") then
+      proc_icon = ""
+      proc_name = "make"
+    else
+      proc_name = process:sub(1, 10) -- Limit length
+    end
+  end
+  
+  return {
+    project = project,
+    process = proc_name,
+    proc_icon = proc_icon,
+    tab_info = string.format("%d/%d", tab:tab_index() + 1, tab_count),
+    pane_info = pane_count > 1 and string.format("P:%d", pane_count) or "",
+  }
+end
+
+-- THEME-ADAPTIVE right status bar
+wezterm.on('update-right-status', function(window, pane)
+  local info = get_contextual_info(window, pane)
+  local colors = get_adaptive_colors(window)
+  
+  -- Create status text
+  local status_text = string.format(" %s %s | %s %s | T:%s",
+    "📁", info.project,
+    info.proc_icon, info.process,
+    info.tab_info
+  )
+  
+  -- Add pane info if multiple panes
+  if info.pane_info ~= "" then
+    status_text = status_text .. " | " .. info.pane_info
+  end
+  
+  -- Format with adaptive colors
+  local formatted_status = wezterm.format({
+    { Background = { Color = colors.status_bg } },
+    { Foreground = { Color = colors.status_fg } },
+    { Text = status_text .. ' ' },
+  })
+  
+  window:set_right_status(formatted_status)
+end)
+
+-- THEME-ADAPTIVE bottom status bar for keybinding hints
+wezterm.on('update-status', function(window, pane)
+  local colors = get_adaptive_colors(window)
+  
+  local hints = {
+    "Ctrl+A c=tab",
+    "Ctrl+A |/-=split", 
+    "Ctrl+A h/j/k/l=nav",
+    "Ctrl+A u=nu",
+    "??=copilot"
+  }
+  
+  local hint_text = table.concat(hints, " • ")
+  
+  -- Use adaptive accent colors
+  local formatted_hints = wezterm.format({
+    { Background = { Color = colors.accent_bg } },
+    { Foreground = { Color = colors.accent_fg } },
+    { Attribute = { Intensity = 'Bold' } },
+    { Text = ' 💡 ' .. hint_text .. ' ' },
+  })
+  
+  window:set_left_status(formatted_hints)
+end)
+
+-- THEME-ADAPTIVE tab titles
+wezterm.on('format-tab-title', function(tab, tabs, panes, config, hover, max_width)
+  local cwd = tab.active_pane.current_working_directory
+  local process = tab.active_pane.foreground_process_name or "shell"
+  
+  -- Get a concise title
+  local title = "Terminal"
+  if cwd then
+    local path = cwd:gsub('file://[^/]*', '')
+    local github_project = path:match('/Documents/GitHub/([^/]+)')
+    if github_project then
+      title = github_project:sub(1, 15) -- Limit length
+    else
+      local dir = path:match('/([^/]+)$')
+      title = dir and dir:sub(1, 15) or "~"
+    end
+  end
+  
+  -- Add process indicator
+  local proc_indicator = ""
+  local lower_process = process:lower()
+  if lower_process:find("nvim") then
+    proc_indicator = ""
+  elseif lower_process:find("nu") then
+    proc_indicator = "🚀"
+  elseif lower_process:find("git") then
+    proc_indicator = ""
+  elseif lower_process:find("python") then
+    proc_indicator = "🐍"
+  elseif lower_process:find("node") then
+    proc_indicator = ""
+  elseif lower_process:find("cargo") or lower_process:find("rust") then
+    proc_indicator = ""
+  elseif lower_process:find("go") then
+    proc_indicator = ""
+  end
+  
+  local index = tab.tab_index + 1
+  local formatted = string.format(' %d:%s%s ', index, proc_indicator, title)
+  
+  -- Truncate if needed but leave room for status
+  local max_title_width = math.min(max_width - 20, 25)
+  if #formatted > max_title_width then
+    formatted = string.format(' %d:%s… ', index, title:sub(1, max_title_width - 8))
+  end
+  
+  return formatted
+end)
+
+-- ============================================================================
+-- THEME CHANGE DETECTION
+-- ============================================================================
+
+-- Function to handle theme changes and update status bars
+local function update_for_theme_change()
+  -- Force status bar refresh when theme changes
+  wezterm.emit('update-right-status')
+  wezterm.emit('update-status')
+end
+
+-- Listen for appearance changes (light/dark mode)
+wezterm.on('window-config-reloaded', function(window, pane)
+  update_for_theme_change()
+end)
+
+-- ============================================================================
+-- END OF THEME-ADAPTIVE STATUS BAR
+-- ============================================================================
 
 -- ============================================================================
 -- RETURN CONFIGURATION
