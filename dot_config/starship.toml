@@ -1,175 +1,148 @@
 # ============================================================================
-# STARSHIP CONFIGURATION
+# STARSHIP CONFIGURATION - MINIMALIST PROFESSIONAL
 # ============================================================================
-# Beautiful, fast, and customizable prompt for any shell
-# Docs: https://starship.rs/config/
+# Clean, fast prompt focused on essential information only
+# Colors: Green (success), Yellow (warning), Red (error), Cyan (location)
 
 # Get editor completions based on the config schema
 "$schema" = 'https://starship.rs/config-schema.json'
 
-# Inserts a blank line between shell prompts
-add_newline = true
+# ============================================================================
+# GLOBAL SETTINGS
+# ============================================================================
 
-# Wait 10 milliseconds for starship to check files under the current directory
+# No blank line between prompts for efficiency
+add_newline = false
+
+# Fast scanning for responsiveness
 scan_timeout = 10
-
-# Increase timeout to prevent pyenv warnings
-command_timeout = 2000
+command_timeout = 1000
 
 # ============================================================================
 # PROMPT FORMAT
 # ============================================================================
 
-# Configure the order of modules in the prompt
+# Minimal format: directory + git + duration + prompt
 format = """
 $username\
 $hostname\
 $directory\
 $git_branch\
 $git_status\
-$git_state\
-$nodejs\
-$python\
-$rust\
-$golang\
-$php\
-$java\
-$docker_context\
-$package\
-$memory_usage\
 $cmd_duration\
-$line_break\
 $character"""
 
 # ============================================================================
-# CHARACTER (The prompt indicator)
+# PROMPT CHARACTER
 # ============================================================================
 
 [character]
-success_symbol = "[❯](bold green)"
-error_symbol = "[❯](bold red)"
-vimcmd_symbol = "[❮](bold yellow)"
+success_symbol = "[>](bold green)"
+error_symbol = "[>](bold red)"
+vimcmd_symbol = "[<](bold yellow)"
 
 # ============================================================================
-# DIRECTORY
+# DIRECTORY PATH
 # ============================================================================
 
 [directory]
 style = "bold cyan"
-read_only = " 🔒"
+read_only = " [RO]"
 truncation_length = 3
-truncation_symbol = "…/"
+truncation_symbol = ".../"
 
-# Here is how you can shorten some long paths by text replacement
+# Remove emoji substitutions - use text only
 [directory.substitutions]
-"Documents" = "📄 "
-"Downloads" = "📥 "
-"Music" = "🎵 "
-"Pictures" = "📸 "
-"Developer" = "💻 "
 
 # ============================================================================
-# GIT
+# GIT INFORMATION
 # ============================================================================
 
 [git_branch]
-symbol = "🌱 "
-format = "on [$symbol$branch]($style) "
-style = "bold purple"
+symbol = ""
+format = " [$branch]($style)"
+style = "bold green"
+truncation_length = 20
 
 [git_status]
-format = '([\[$all_status$ahead_behind\]]($style) )'
-style = "bold red"
-conflicted = "🏳"
-up_to_date = "✓"
-untracked = "🤷"
-ahead = "⇡${count}"
-diverged = "⇕⇡${ahead_count}⇣${behind_count}"
-behind = "⇣${count}"
-stashed = "📦"
-modified = "📝"
-staged = '[++\($count\)](green)'
-renamed = "👅"
-deleted = "🗑"
+format = '[$all_status$ahead_behind]($style)'
+style = "bold yellow"
 
+# Clean text-based indicators
+conflicted = "[conflict]"
+up_to_date = ""
+untracked = "[untracked]"
+ahead = "[+${count}]"
+diverged = "[+${ahead_count}-${behind_count}]"
+behind = "[-${count}]"
+stashed = "[stashed]"
+modified = "[modified]"
+staged = "[staged:${count}]"
+renamed = "[renamed]"
+deleted = "[deleted]"
+
+# Disable git_state for minimal output
 [git_state]
-format = '[\($state( $progress_current of $progress_total)\)]($style) '
-cherry_pick = "[🍒 PICKING](bold red)"
+disabled = true
 
 # ============================================================================
-# LANGUAGE SPECIFIC
+# COMMAND DURATION
 # ============================================================================
 
-[nodejs]
-symbol = "⬢ "
-style = "bold green"
-
-[python]
-symbol = "🐍 "
-style = "bold yellow"
-# Disable pyenv detection to prevent timeouts
-pyenv_version_name = false
-
-[rust]
-symbol = "🦀 "
-style = "bold red"
-
-[golang]
-symbol = "🐹 "
-style = "bold cyan"
-
-[php]
-symbol = "🐘 "
-style = "bold purple"
-
-[java]
-symbol = "☕ "
-style = "bold orange"
+[cmd_duration]
+min_time = 2_000
+format = " [${duration}](bold yellow)"
+show_milliseconds = false
 
 # ============================================================================
-# INFRASTRUCTURE
-# ============================================================================
-
-[docker_context]
-symbol = "🐳 "
-style = "blue bold"
-format = "via [$symbol$context]($style) "
-
-[package]
-symbol = "📦 "
-style = "bold yellow"
-
-# ============================================================================
-# SYSTEM INFO
+# USER/HOST (SSH ONLY)
 # ============================================================================
 
 [username]
 style_user = "bold yellow"
 style_root = "bold red"
-format = "[$user]($style) "
+format = "[$user]($style)"
 disabled = false
 show_always = false
 
 [hostname]
 ssh_only = true
-format = "at [$hostname](bold red) "
+format = "[@$hostname]($style) "
+style = "bold yellow"
 disabled = false
-
-[memory_usage]
-disabled = true
-threshold = 70
-symbol = "🐏 "
-style = "bold dimmed green"
-
-[cmd_duration]
-min_time = 2_000
-format = "took [$duration](bold yellow) "
 
 # ============================================================================
 # DISABLED MODULES
 # ============================================================================
+# Hide all programming language versions for clean prompt
 
-# Disable modules you don't want
+[nodejs]
+disabled = true
+
+[python]
+disabled = true
+
+[rust]
+disabled = true
+
+[golang]
+disabled = true
+
+[php]
+disabled = true
+
+[java]
+disabled = true
+
+[docker_context]
+disabled = true
+
+[package]
+disabled = true
+
+[memory_usage]
+disabled = true
+
 [aws]
 disabled = true
 
@@ -195,4 +168,43 @@ disabled = true
 disabled = true
 
 [ruby]
+disabled = true
+
+[dotnet]
+disabled = true
+
+[elixir]
+disabled = true
+
+[elm]
+disabled = true
+
+[erlang]
+disabled = true
+
+[haskell]
+disabled = true
+
+[kotlin]
+disabled = true
+
+[lua]
+disabled = true
+
+[nim]
+disabled = true
+
+[ocaml]
+disabled = true
+
+[perl]
+disabled = true
+
+[scala]
+disabled = true
+
+[swift]
+disabled = true
+
+[zig]
 disabled = true

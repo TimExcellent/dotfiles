@@ -1,138 +1,153 @@
-# If you come from bash you might have to change your $PATH.
-# export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
+#!/bin/zsh
+# ============================================================================
+# Pure ZSH Configuration - No Oh My Zsh Bloat
+# ============================================================================
 
-# Path to your Oh My Zsh installation.
-export ZSH="$HOME/.oh-my-zsh"
+# === ENVIRONMENT ===
 
-# Set name of the theme to load --- if set to "random", it will
-# load a random theme each time Oh My Zsh is loaded, in which case,
-# to know which specific one was loaded, run: echo $RANDOM_THEME
-# See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
-ZSH_THEME="robbyrussell"
+# Clear and explicit PATH setup
+export PATH="$HOME/.local/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 
-# Set list of themes to pick from when loading at random
-# Setting this variable when ZSH_THEME=random will cause zsh to load
-# a theme from this variable instead of looking in $ZSH/themes/
-# If set to an empty array, this variable will have no effect.
-# ZSH_THEME_RANDOM_CANDIDATES=( "robbyrussell" "agnoster" )
+# Editor settings
+export EDITOR="nvim"
+export VISUAL="nvim"
 
-# Uncomment the following line to use case-sensitive completion.
-# CASE_SENSITIVE="true"
+# Language settings
+export LANG="en_US.UTF-8"
+export LC_ALL="en_US.UTF-8"
 
-# Uncomment the following line to use hyphen-insensitive completion.
-# Case-sensitive completion must be off. _ and - will be interchangeable.
-# HYPHEN_INSENSITIVE="true"
+# === SHELL OPTIONS ===
 
-# Uncomment one of the following lines to change the auto-update behavior
-# zstyle ':omz:update' mode disabled  # disable automatic updates
-# zstyle ':omz:update' mode auto      # update automatically without asking
-# zstyle ':omz:update' mode reminder  # just remind me to update when it's time
+# History configuration - extensive and shared
+HISTFILE="$HOME/.zsh_history"
+HISTSIZE=10000
+SAVEHIST=10000
+setopt EXTENDED_HISTORY          # Save timestamp and duration
+setopt SHARE_HISTORY             # Share history between sessions
+setopt HIST_EXPIRE_DUPS_FIRST    # Expire duplicates first
+setopt HIST_IGNORE_DUPS          # Don't save duplicates
+setopt HIST_IGNORE_ALL_DUPS      # Remove old duplicates
+setopt HIST_FIND_NO_DUPS         # Don't show duplicates in search
+setopt HIST_IGNORE_SPACE         # Ignore commands starting with space
+setopt HIST_SAVE_NO_DUPS         # Don't save duplicates to file
 
-# Uncomment the following line to change how often to auto-update (in days).
-# zstyle ':omz:update' frequency 13
+# Completion settings - modern and user-friendly
+autoload -Uz compinit && compinit
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'  # Case-insensitive completion
+zstyle ':completion:*' list-colors ''                      # Colorful completions
+zstyle ':completion:*' menu select                         # Menu-driven completion
+zstyle ':completion:*' group-name ''                       # Group completions
+zstyle ':completion:*' verbose yes                         # Verbose descriptions
 
-# Uncomment the following line if pasting URLs and other text is messed up.
-# DISABLE_MAGIC_FUNCTIONS="true"
+# Directory navigation - smart and convenient
+setopt AUTO_CD              # Type directory name to cd into it
+setopt AUTO_PUSHD           # Automatically push directories to stack
+setopt PUSHD_IGNORE_DUPS    # Don't push duplicates to directory stack
+setopt CDABLE_VARS          # Allow cd to variables
 
-# Uncomment the following line to disable colors in ls.
-# DISABLE_LS_COLORS="true"
+# Other useful options
+setopt CORRECT              # Correct typos in commands
+setopt NO_BEEP              # No annoying beeps
+setopt INTERACTIVE_COMMENTS # Allow comments in interactive mode
 
-# Uncomment the following line to disable auto-setting terminal title.
-# DISABLE_AUTO_TITLE="true"
+# === ALIASES ===
 
-# Uncomment the following line to enable command auto-correction.
-# ENABLE_CORRECTION="true"
+# Navigation aliases - obvious and efficient
+alias ll='ls -lah'          # Long listing with hidden files and human-readable sizes
+alias la='ls -A'            # List all files except . and ..
+alias l='ls -CF'            # Classify files and columns
+alias ..='cd ..'            # Go up one directory
+alias ...='cd ../..'        # Go up two directories
+alias ....='cd ../../..'    # Go up three directories
 
-# Uncomment the following line to display red dots whilst waiting for completion.
-# You can also set it to another string to have that shown instead of the default red dots.
-# e.g. COMPLETION_WAITING_DOTS="%F{yellow}waiting...%f"
-# Caution: this setting can cause issues with multiline prompts in zsh < 5.7.1 (see #5765)
-# COMPLETION_WAITING_DOTS="true"
+# Git shortcuts - essential workflow commands
+alias gs='git status'                    # Quick status check
+alias gd='git diff'                      # See changes
+alias gc='git commit'                    # Commit changes
+alias gca='git commit -a'                # Commit all tracked changes
+alias gcm='git commit -m'                # Commit with message
+alias gp='git push'                      # Push to remote
+alias gl='git log --oneline -10'         # Recent commits, concise
+alias ga='git add'                       # Add files to staging
+alias gaa='git add .'                    # Add all files
+alias gb='git branch'                    # List branches
+alias gco='git checkout'                 # Switch branches
+alias gcb='git checkout -b'              # Create and switch to new branch
 
-# Uncomment the following line if you want to disable marking untracked files
-# under VCS as dirty. This makes repository status check for large repositories
-# much, much faster.
-# DISABLE_UNTRACKED_FILES_DIRTY="true"
+# Common commands - productivity boosters
+alias grep='grep --color=auto'           # Colorful grep
+alias fgrep='fgrep --color=auto'         # Colorful fgrep
+alias egrep='egrep --color=auto'         # Colorful egrep
+alias mkdir='mkdir -p'                   # Create parent directories
+alias df='df -h'                         # Human-readable disk usage
+alias du='du -h'                         # Human-readable directory usage
+alias free='free -h'                     # Human-readable memory usage (if available)
+alias ps='ps aux'                        # Detailed process list
+alias reload='source ~/.zshrc'           # Reload zsh configuration
 
-# Uncomment the following line if you want to change the command execution time
-# stamp shown in the history command output.
-# You can set one of the optional three formats:
-# "mm/dd/yyyy"|"dd.mm.yyyy"|"yyyy-mm-dd"
-# or set a custom format using the strftime function format specifications,
-# see 'man strftime' for details.
-# HIST_STAMPS="mm/dd/yyyy"
+# macOS specific aliases
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    alias ls='ls -G'                      # Colorful ls on macOS
+    alias o='open'                        # Open files/directories
+    alias finder='open -a Finder'         # Open Finder
+else
+    alias ls='ls --color=auto'            # Colorful ls on Linux
+fi
 
-# Would you like to use another custom folder than $ZSH/custom?
-# ZSH_CUSTOM=/path/to/new-custom-folder
+# === PROMPT ===
 
-# Which plugins would you like to load?
-# Standard plugins can be found in $ZSH/plugins/
-# Custom plugins may be added to $ZSH_CUSTOM/plugins/
-# Example format: plugins=(rails git textmate ruby lighthouse)
-# Add wisely, as too many plugins slow down shell startup.
-plugins=(git)
-
-source $ZSH/oh-my-zsh.sh
-
-# User configuration
-
-# export MANPATH="/usr/local/man:$MANPATH"
-
-# You may need to manually set your language environment
-# export LANG=en_US.UTF-8
-
-# Preferred editor for local and remote sessions
-# if [[ -n $SSH_CONNECTION ]]; then
-#   export EDITOR='vim'
-# else
-#   export EDITOR='nvim'
-# fi
-
-# Compilation flags
-# export ARCHFLAGS="-arch $(uname -m)"
-
-# Set personal aliases, overriding those provided by Oh My Zsh libs,
-# plugins, and themes. Aliases can be placed here, though Oh My Zsh
-# users are encouraged to define aliases within a top-level file in
-# the $ZSH_CUSTOM folder, with .zsh extension. Examples:
-# - $ZSH_CUSTOM/aliases.zsh
-# - $ZSH_CUSTOM/macos.zsh
-# For a full list of active aliases, run `alias`.
-#
-# Example aliases
-# alias zshconfig="mate ~/.zshrc"
-# alias ohmyzsh="mate ~/.oh-my-zsh"
-
-# >>> conda initialize >>>
-# !! Contents within this block are managed by 'conda init' !!
-#__conda_setup="$('/opt/miniconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
-#if [ $? -eq 0 ]; then
-#    eval "$__conda_setup"
-#else
-#    if [ -f "/opt/miniconda3/etc/profile.d/conda.sh" ]; then
-#        . "/opt/miniconda3/etc/profile.d/conda.sh"
-#    else
-#        export PATH="/opt/miniconda3/bin:$PATH"
-#    fi
-#fi
-#unset __conda_setup
-# <<< conda initialize <<<
-
-# Pyenv configuration
-export PYENV_ROOT="$HOME/.pyenv"
-command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init -)"
-
-
-. "$HOME/.local/bin/env"
-. "/Users/tmd/.deno/env"
+# Starship prompt - modern, fast, and informative
 eval "$(starship init zsh)"
-eval "$(gh copilot alias -- zsh)"
 
-# Manual GitHub Copilot aliases
-alias '??'='gh copilot suggest'
-alias 'git?'='gh copilot suggest --type git'
-alias 'gh?'='gh copilot suggest --type gh'
+# === TOOLS ===
 
-# Project Management Functions
-source ~/.local/bin/project-functions.sh
+# Python environment management
+export PYENV_ROOT="$HOME/.pyenv"
+if command -v pyenv >/dev/null; then
+    export PATH="$PYENV_ROOT/bin:$PATH"
+    eval "$(pyenv init -)"
+fi
+
+# Deno JavaScript/TypeScript runtime
+if [ -f "/Users/tmd/.deno/env" ]; then
+    source "/Users/tmd/.deno/env"
+fi
+
+# Local bin environment setup
+if [ -f "$HOME/.local/bin/env" ]; then
+    source "$HOME/.local/bin/env"
+fi
+
+# Project management functions - custom workflow tools
+if [ -f "$HOME/.local/bin/project-functions.sh" ]; then
+    source "$HOME/.local/bin/project-functions.sh"
+fi
+
+# === AI ASSISTANCE (COMMENTED OUT BY DEFAULT) ===
+# Uncomment for AI assistance (explicit opt-in)
+
+# GitHub Copilot CLI integration
+# eval "$(gh copilot alias -- zsh)"
+
+# GitHub Copilot manual aliases
+# alias '??'='gh copilot suggest'
+# alias 'git?'='gh copilot suggest --type git'
+# alias 'gh?'='gh copilot suggest --type gh'
+
+# === CONDA (COMMENTED OUT) ===
+# Conda package manager (commented out - uncomment if needed)
+# __conda_setup="$('/opt/miniconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+# if [ $? -eq 0 ]; then
+#     eval "$__conda_setup"
+# else
+#     if [ -f "/opt/miniconda3/etc/profile.d/conda.sh" ]; then
+#         . "/opt/miniconda3/etc/profile.d/conda.sh"
+#     else
+#         export PATH="/opt/miniconda3/bin:$PATH"
+#     fi
+# fi
+# unset __conda_setup
+
+# ============================================================================
+# End of Configuration
+# ============================================================================
