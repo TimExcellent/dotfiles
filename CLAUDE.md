@@ -1,152 +1,156 @@
-# Claude AI Assistant Guide for Terminal Environment
+# CLAUDE.md
 
-## Environment Overview
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-**Platform**: macOS (Darwin)
-**Terminal**: WezTerm with Gruvbox theme
-**Shells**: zsh (primary), Nushell (data processing)
-**Editor**: Neovim with LazyVim
-**Prompt**: Starship (Gruvbox colors)
-**Dotfiles Manager**: chezmoi
+## Repository Purpose
 
-## Quick Reference
+Personal dotfiles repository for a modern, terminal-first macOS development environment. Managed by **chezmoi** for cross-machine synchronization.
 
-### Command Discovery (Your Main Tools)
+**Critical**: This is NOT a standard git repository where files are directly edited. Source files are prefixed with `dot_` and managed by chezmoi.
 
-| Need | Command | Description |
-|------|---------|-------------|
-| Forgot a command | `navi` or `Ctrl+G` | Interactive cheatsheet search |
-| Quick syntax help | `tldr <command>` | Simplified man pages |
-| Find past commands | `Ctrl+R` | Atuin fuzzy history search |
-| In Neovim | `<Space>` | which-key shows all keybindings |
+## Architecture
 
-### Modern CLI Tools
+### File Naming Convention
 
-| Old | New | Usage |
-|-----|-----|-------|
-| `ls` | `eza` | `ll` (long), `lt` (tree), `la` (all) |
-| `cat` | `bat` | Syntax highlighting, line numbers |
-| `find` | `fd` | `fd readme` finds README files |
-| `grep` | `rg` | `rg 'pattern'` searches fast |
-| `cd` | `z` | `z proj` jumps to project dir, `zi` interactive |
+| Source File (in repo) | Target Location | Purpose |
+|----------------------|-----------------|---------|
+| `dot_wezterm.lua` | `~/.wezterm.lua` | WezTerm terminal config |
+| `dot_zshrc` | `~/.zshrc` | Zsh shell config |
+| `dot_config/starship.toml` | `~/.config/starship.toml` | Starship prompt |
 
-### Navigation
+**Never edit target files directly** - they will be overwritten by chezmoi.
 
-```bash
-z <partial-name>   # Smart cd (learns directories)
-zi                 # Interactive directory picker
-..                 # Go up one level
-...                # Go up two levels
-vf                 # Fuzzy find and open file in nvim
-```
+### Configuration Layers
 
-### AI Integration
+1. **Terminal Layer**: WezTerm (Lua config) provides multiplexing, theming, keybindings
+2. **Shell Layer**: Zsh (primary) and Nushell (data processing) with modern CLI tool integration
+3. **Prompt Layer**: Starship provides consistent prompt across all shells
+4. **Editor Layer**: Neovim with LazyVim (NOT managed by this repo - lives in `~/.config/nvim/`)
 
-- **Claude Code**: Run `claude` in terminal for AI assistance
-- **avante.nvim**: In Neovim, `<Space>aa` to ask AI, `<Space>ae` to edit with AI
-- **navi**: Cheatsheets without API costs
+### Modern CLI Tools Stack
 
-## File Locations
+The setup replaces traditional Unix tools with modern alternatives:
+- `eza` replaces `ls` (icons, git status)
+- `bat` replaces `cat` (syntax highlighting)
+- `fd` replaces `find` (simpler syntax)
+- `ripgrep` replaces `grep` (faster)
+- `zoxide` replaces `cd` (smart navigation)
+- `fzf` for fuzzy finding
+- `atuin` for shell history
+- `navi` for interactive cheatsheets
 
-### Managed by chezmoi
+All tools are integrated in `dot_zshrc` with conditional loading.
 
-| Source (dotfiles repo) | Target |
-|------------------------|--------|
-| `dot_wezterm.lua` | `~/.wezterm.lua` |
-| `dot_zshrc` | `~/.zshrc` |
-| `dot_config/starship.toml` | `~/.config/starship.toml` |
+## Common Workflows
 
-### Neovim (LazyVim)
+### Making Configuration Changes
 
-| File | Purpose |
-|------|---------|
-| `~/.config/nvim/lua/plugins/colorscheme.lua` | Gruvbox + theme switching |
-| `~/.config/nvim/lua/plugins/avante.lua` | AI integration |
-| `~/.config/nvim/lua/plugins/markdown.lua` | Markdown + Zen mode |
-
-### Nushell
-
-| File | Purpose |
-|------|---------|
-| `~/Library/Application Support/nushell/config.nu` | Main config |
-| `~/Library/Application Support/nushell/zoxide.nu` | Smart cd |
-
-## Making Changes
-
-### Edit dotfiles
+**ALWAYS use this workflow:**
 
 ```bash
-chezmoi edit ~/.zshrc        # Edit in repo
-chezmoi apply                 # Apply to home
-chezmoi diff                  # Preview changes
+# 1. Edit the source file in this repo
+vim dot_zshrc  # or dot_wezterm.lua, etc.
+
+# 2. Copy to home directory (chezmoi often fails to apply)
+cp dot_zshrc ~/.zshrc
+cp dot_wezterm.lua ~/.wezterm.lua
+cp dot_config/starship.toml ~/.config/starship.toml
+
+# 3. Test the change
+source ~/.zshrc  # for zsh
+# or Cmd+Shift+R in WezTerm
+
+# 4. Commit
+git add .
+git commit -m "Description"
+git push
 ```
 
-### Update configs after editing
+**Note**: `chezmoi apply` should work but has proven unreliable in this setup. Direct file copying is more reliable.
+
+### Adding New Dotfiles
 
 ```bash
-reload                        # Reload zsh
-# For WezTerm: Cmd+Shift+R reloads config
-# For Neovim: :Lazy sync updates plugins
+# Add file to chezmoi tracking
+chezmoi add ~/.gitconfig
+
+# This creates dot_gitconfig in the repo
+# Edit and manage like other dotfiles
 ```
 
-## Key Bindings
+### Theme Changes
 
-### WezTerm
+WezTerm theme: `config.color_scheme = 'GruvboxDarkHard'` (line 14 of dot_wezterm.lua)
+Starship colors: Defined using hex codes (Gruvbox palette) throughout dot_config/starship.toml
 
-| Key | Action |
-|-----|--------|
-| `Ctrl+Shift+T` | Theme switcher |
-| `Cmd+D` | Split horizontally |
-| `Cmd+Shift+D` | Split vertically |
-| `Cmd+Opt+h/j/k/l` | Navigate panes (Vim-style) |
-| `Cmd+1-9` | Switch tabs |
-| `Cmd+z` | Zoom pane |
-| `Cmd+Shift+N` | Open Nushell in new tab |
+## Key Configuration Patterns
 
-### Neovim (LazyVim)
+### WezTerm (dot_wezterm.lua)
 
-| Key | Action |
-|-----|--------|
-| `<Space>` | Show all keybindings (which-key) |
-| `<Space>ff` | Find files |
-| `<Space>fg` | Find in files (grep) |
-| `<Space>fb` | Find buffers |
-| `<Space>aa` | Ask AI (avante) |
-| `<Space>ae` | Edit with AI |
-| `<Space>z` | Zen mode (distraction-free) |
+- **Theme switcher**: `Ctrl+Shift+T` opens InputSelector with 10 preset themes
+- **Keybindings**: macOS-style (`CMD` prefix) for panes, tabs, navigation
+- **Window size**: `initial_cols = 140, initial_rows = 40` for reasonable default size
+- **Gruvbox colors**: Custom tab_bar colors defined in `config.colors`
 
-## Troubleshooting
+### Zsh (dot_zshrc)
 
-### Tool not found
+- **PATH management**: Uses `typeset -U path` to prevent duplicates, then array assignment
+- **Tool integration**: Each tool (eza, bat, etc.) has `if command -v` conditional loading
+- **Functions**: Helper functions like `help()`, `vf()` for fuzzy file opening
+- **Aliases**: Modern tool aliases that maintain muscle memory (`ll`, `cat`, etc.)
 
-```bash
-brew list                     # Check installed packages
-which <tool>                  # Find tool location
-```
+### Starship (dot_config/starship.toml)
 
-### Config not loading
+- **Minimalist design**: Only directory, git, and character by default
+- **Right prompt**: Command duration and language indicators
+- **Gruvbox colors**: All colors use hex codes matching Gruvbox palette
+- **Disabled modules**: Most language/tool modules disabled to keep prompt clean
 
-```bash
-chezmoi status               # Check chezmoi state
-chezmoi apply --force        # Force apply
-source ~/.zshrc              # Reload zsh
-```
+## Neovim Integration (External)
 
-### Neovim plugins issues
+Neovim config lives in `~/.config/nvim/` (NOT in this repo). Key plugins:
+- `gruvbox-material` (colorscheme)
+- `avante.nvim` (AI coding assistant)
+- `render-markdown.nvim` (markdown rendering)
+- `zen-mode.nvim` (distraction-free writing)
 
-```bash
-nvim                         # Open Neovim
-:Lazy                        # Open plugin manager
-:Lazy sync                   # Update plugins
-:checkhealth                 # Run health checks
-```
+These are managed by LazyVim and installed via `lua/plugins/` files.
 
-## Installed Tools
+## Important Constraints
 
-**Core**: wezterm, starship, nushell, neovim (lazyvim)
-**Modern CLI**: eza, bat, fd, ripgrep, zoxide, fzf, atuin, navi, tldr
-**AI**: claude-code, avante.nvim
+### User Preferences
+- **Beginner-friendly**: User is terminal beginner, needs command discovery tools (navi, tldr, which-key)
+- **No memorization**: Design patterns around discovery, not memory
+- **Gruvbox aesthetic**: All themes should use Gruvbox or be easily switchable
+- **macOS primary**: Optimized for macOS but maintains some cross-platform references
 
----
+### Technical Constraints
+- **Shell loading**: Tools must conditionally load (check with `command -v`) to avoid errors
+- **PATH ordering**: Homebrew paths must come before system paths
+- **Nushell separate**: Nushell config lives in `~/Library/Application Support/nushell/`
+- **Window size**: Default 140×40 prevents fullscreen waste on wide monitors
 
-**Last Updated**: December 2025
+## Troubleshooting Patterns
+
+### "command not found" on shell startup
+- Check PATH is set before tool initialization
+- Verify tool exists: `which <tool>` or `brew list | grep <tool>`
+- Tools should have fallback behavior (see eza alias block)
+
+### Config not applying
+- Don't rely on `chezmoi apply` - copy files directly
+- After copying, reload: `source ~/.zshrc` or restart WezTerm
+- Check file permissions: configs should be readable
+
+### Merge conflicts
+- This repo has multiple work streams, expect conflicts
+- Source files (`dot_*`) are source of truth
+- When conflicted: keep working version, test, then commit
+
+## What NOT to Do
+
+- Don't edit `~/.zshrc` directly - edit `dot_zshrc` in repo
+- Don't add complex abstractions - keep configs readable
+- Don't assume tools are installed - always check with `command -v`
+- Don't use `chezmoi edit` - it's inconsistent, edit files directly
+- Don't add Oh-My-Zsh or similar frameworks - this is a minimal setup
