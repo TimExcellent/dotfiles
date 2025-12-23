@@ -1,153 +1,186 @@
 #!/bin/zsh
-# ============================================================================
-# Pure ZSH Configuration - No Oh My Zsh Bloat
-# ============================================================================
+# =============================================================================
+# ZSH Configuration - Modern Terminal Setup
+# =============================================================================
+# Tools: eza, bat, fd, ripgrep, zoxide, fzf, atuin, navi
+# AI: Claude Code (terminal), avante.nvim (Neovim)
+# =============================================================================
+
+# === PATH ===
+typeset -U path
+path=(
+  "$HOME/.local/bin"
+  "/opt/homebrew/bin"
+  "/opt/homebrew/sbin"
+  "$HOME/.pyenv/bin"
+  "$HOME/.deno/bin"
+  $path
+)
+export PATH
 
 # === ENVIRONMENT ===
-
-# Clear and explicit PATH setup
-export PATH="$HOME/.local/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
-
-# Editor settings
 export EDITOR="nvim"
 export VISUAL="nvim"
-
-# Language settings
 export LANG="en_US.UTF-8"
 export LC_ALL="en_US.UTF-8"
 
-# === SHELL OPTIONS ===
-
-# History configuration - extensive and shared
+# === HISTORY ===
 HISTFILE="$HOME/.zsh_history"
-HISTSIZE=10000
-SAVEHIST=10000
-setopt EXTENDED_HISTORY          # Save timestamp and duration
-setopt SHARE_HISTORY             # Share history between sessions
-setopt HIST_EXPIRE_DUPS_FIRST    # Expire duplicates first
-setopt HIST_IGNORE_DUPS          # Don't save duplicates
-setopt HIST_IGNORE_ALL_DUPS      # Remove old duplicates
-setopt HIST_FIND_NO_DUPS         # Don't show duplicates in search
-setopt HIST_IGNORE_SPACE         # Ignore commands starting with space
-setopt HIST_SAVE_NO_DUPS         # Don't save duplicates to file
+HISTSIZE=50000
+SAVEHIST=50000
+setopt EXTENDED_HISTORY SHARE_HISTORY HIST_EXPIRE_DUPS_FIRST
+setopt HIST_IGNORE_DUPS HIST_IGNORE_ALL_DUPS HIST_FIND_NO_DUPS
+setopt HIST_IGNORE_SPACE HIST_SAVE_NO_DUPS
 
-# Completion settings - modern and user-friendly
+# === OPTIONS ===
+setopt AUTO_CD AUTO_PUSHD PUSHD_IGNORE_DUPS CORRECT NO_BEEP INTERACTIVE_COMMENTS
+
+# === COMPLETION ===
 autoload -Uz compinit && compinit
-zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'  # Case-insensitive completion
-zstyle ':completion:*' list-colors ''                      # Colorful completions
-zstyle ':completion:*' menu select                         # Menu-driven completion
-zstyle ':completion:*' group-name ''                       # Group completions
-zstyle ':completion:*' verbose yes                         # Verbose descriptions
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
+zstyle ':completion:*' list-colors ''
+zstyle ':completion:*' menu select
+zstyle ':completion:*' verbose yes
 
-# Directory navigation - smart and convenient
-setopt AUTO_CD              # Type directory name to cd into it
-setopt AUTO_PUSHD           # Automatically push directories to stack
-setopt PUSHD_IGNORE_DUPS    # Don't push duplicates to directory stack
-setopt CDABLE_VARS          # Allow cd to variables
+# =============================================================================
+# MODERN CLI TOOLS
+# =============================================================================
 
-# Other useful options
-setopt CORRECT              # Correct typos in commands
-setopt NO_BEEP              # No annoying beeps
-setopt INTERACTIVE_COMMENTS # Allow comments in interactive mode
-
-# === ALIASES ===
-
-# Navigation aliases - obvious and efficient
-alias ll='ls -lah'          # Long listing with hidden files and human-readable sizes
-alias la='ls -A'            # List all files except . and ..
-alias l='ls -CF'            # Classify files and columns
-alias ..='cd ..'            # Go up one directory
-alias ...='cd ../..'        # Go up two directories
-alias ....='cd ../../..'    # Go up three directories
-
-# Git shortcuts - essential workflow commands
-alias gs='git status'                    # Quick status check
-alias gd='git diff'                      # See changes
-alias gc='git commit'                    # Commit changes
-alias gca='git commit -a'                # Commit all tracked changes
-alias gcm='git commit -m'                # Commit with message
-alias gp='git push'                      # Push to remote
-alias gl='git log --oneline -10'         # Recent commits, concise
-alias ga='git add'                       # Add files to staging
-alias gaa='git add .'                    # Add all files
-alias gb='git branch'                    # List branches
-alias gco='git checkout'                 # Switch branches
-alias gcb='git checkout -b'              # Create and switch to new branch
-
-# Common commands - productivity boosters
-alias grep='grep --color=auto'           # Colorful grep
-alias fgrep='fgrep --color=auto'         # Colorful fgrep
-alias egrep='egrep --color=auto'         # Colorful egrep
-alias mkdir='mkdir -p'                   # Create parent directories
-alias df='df -h'                         # Human-readable disk usage
-alias du='du -h'                         # Human-readable directory usage
-alias free='free -h'                     # Human-readable memory usage (if available)
-alias ps='ps aux'                        # Detailed process list
-alias reload='source ~/.zshrc'           # Reload zsh configuration
-
-# macOS specific aliases
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    alias ls='ls -G'                      # Colorful ls on macOS
-    alias o='open'                        # Open files/directories
-    alias finder='open -a Finder'         # Open Finder
+# eza (better ls)
+if command -v eza &>/dev/null; then
+  alias ls='eza --icons'
+  alias ll='eza -la --icons --git'
+  alias la='eza -a --icons'
+  alias lt='eza --tree --level=2 --icons'
 else
-    alias ls='ls --color=auto'            # Colorful ls on Linux
+  alias ll='ls -lah'
+  alias la='ls -A'
 fi
 
-# === PROMPT ===
-
-# Starship prompt - modern, fast, and informative
-eval "$(starship init zsh)"
-
-# === TOOLS ===
-
-# Python environment management
-export PYENV_ROOT="$HOME/.pyenv"
-if command -v pyenv >/dev/null; then
-    export PATH="$PYENV_ROOT/bin:$PATH"
-    eval "$(pyenv init -)"
+# bat (better cat)
+if command -v bat &>/dev/null; then
+  alias cat='bat --paging=never'
+  alias catp='bat'
+  export BAT_THEME="gruvbox-dark"
 fi
 
-# Deno JavaScript/TypeScript runtime
-if [ -f "/Users/tmd/.deno/env" ]; then
-    source "/Users/tmd/.deno/env"
+# fd (better find) and ripgrep (better grep)
+command -v fd &>/dev/null && alias find='fd'
+command -v rg &>/dev/null && alias grep='rg'
+
+# =============================================================================
+# NAVIGATION
+# =============================================================================
+
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+
+# Zoxide (smart cd)
+if command -v zoxide &>/dev/null; then
+  eval "$(zoxide init zsh --cmd z)"
 fi
 
-# Local bin environment setup
-if [ -f "$HOME/.local/bin/env" ]; then
-    source "$HOME/.local/bin/env"
+# =============================================================================
+# GIT
+# =============================================================================
+
+alias g='git'
+alias gs='git status'
+alias gd='git diff'
+alias gds='git diff --staged'
+alias ga='git add'
+alias gaa='git add .'
+alias gc='git commit'
+alias gcm='git commit -m'
+alias gp='git push'
+alias gpl='git pull'
+alias gl='git log --oneline -15'
+alias glg='git log --graph --oneline --decorate'
+alias gb='git branch'
+alias gco='git checkout'
+alias gcb='git checkout -b'
+
+# =============================================================================
+# FZF
+# =============================================================================
+
+if command -v fzf &>/dev/null; then
+  if command -v fd &>/dev/null; then
+    export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+    export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+    export FZF_ALT_C_COMMAND='fd --type d --hidden --follow --exclude .git'
+  fi
+  export FZF_DEFAULT_OPTS='
+    --color=bg+:#3c3836,bg:#282828,spinner:#fb4934,hl:#928374
+    --color=fg:#ebdbb2,header:#928374,info:#8ec07c,pointer:#fb4934
+    --color=marker:#fb4934,fg+:#ebdbb2,prompt:#fb4934,hl+:#fb4934
+    --height 40% --layout=reverse --border'
+  [[ -f /opt/homebrew/opt/fzf/shell/completion.zsh ]] && source /opt/homebrew/opt/fzf/shell/completion.zsh
+  [[ -f /opt/homebrew/opt/fzf/shell/key-bindings.zsh ]] && source /opt/homebrew/opt/fzf/shell/key-bindings.zsh
 fi
 
-# Project management functions - custom workflow tools
-if [ -f "$HOME/.local/bin/project-functions.sh" ]; then
-    source "$HOME/.local/bin/project-functions.sh"
-fi
+# =============================================================================
+# ATUIN & NAVI
+# =============================================================================
 
-# === AI ASSISTANCE (COMMENTED OUT BY DEFAULT) ===
-# Uncomment for AI assistance (explicit opt-in)
+command -v atuin &>/dev/null && eval "$(atuin init zsh)"
+command -v navi &>/dev/null && eval "$(navi widget zsh)"
 
-# GitHub Copilot CLI integration
-# eval "$(gh copilot alias -- zsh)"
+# =============================================================================
+# STARSHIP
+# =============================================================================
 
-# GitHub Copilot manual aliases
-# alias '??'='gh copilot suggest'
-# alias 'git?'='gh copilot suggest --type git'
-# alias 'gh?'='gh copilot suggest --type gh'
+command -v starship &>/dev/null && eval "$(starship init zsh)"
 
-# === CONDA (COMMENTED OUT) ===
-# Conda package manager (commented out - uncomment if needed)
-# __conda_setup="$('/opt/miniconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
-# if [ $? -eq 0 ]; then
-#     eval "$__conda_setup"
-# else
-#     if [ -f "/opt/miniconda3/etc/profile.d/conda.sh" ]; then
-#         . "/opt/miniconda3/etc/profile.d/conda.sh"
-#     else
-#         export PATH="/opt/miniconda3/bin:$PATH"
-#     fi
-# fi
-# unset __conda_setup
+# =============================================================================
+# LANGUAGE TOOLS
+# =============================================================================
 
-# ============================================================================
-# End of Configuration
-# ============================================================================
+command -v pyenv &>/dev/null && eval "$(pyenv init -)"
+[[ -f "$HOME/.deno/env" ]] && source "$HOME/.deno/env"
+[[ -f "$HOME/.local/bin/env" ]] && source "$HOME/.local/bin/env"
+
+# =============================================================================
+# FUNCTIONS
+# =============================================================================
+
+help() {
+  echo "=== Command Discovery ==="
+  echo "  navi     - Interactive cheatsheet (Ctrl+G)"
+  echo "  tldr     - Simplified man pages"
+  echo "  Ctrl+R   - History search (Atuin)"
+  echo ""
+  echo "=== Navigation ==="
+  echo "  z <dir>  - Smart cd"
+  echo "  zi       - Interactive directory picker"
+  echo ""
+  echo "=== Files ==="
+  echo "  ll       - List with icons and git"
+  echo "  lt       - Tree view"
+  echo "  fd       - Find files"
+  echo "  rg       - Search in files"
+  echo ""
+  echo "=== AI ==="
+  echo "  claude   - Claude Code"
+}
+
+mkcd() { mkdir -p "$1" && cd "$1" }
+
+vf() {
+  local file
+  file=$(fd --type f | fzf --preview 'bat --style=numbers --color=always {}')
+  [[ -n "$file" ]] && nvim "$file"
+}
+
+# =============================================================================
+# ALIASES
+# =============================================================================
+
+alias reload='source ~/.zshrc'
+alias v='nvim'
+alias vim='nvim'
+alias wezconfig='$EDITOR ~/.wezterm.lua'
+alias starconfig='$EDITOR ~/.config/starship.toml'
+
+[[ "$OSTYPE" == "darwin"* ]] && alias o='open' && alias finder='open -a Finder'

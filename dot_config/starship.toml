@@ -1,125 +1,116 @@
-# ============================================================================
-# STARSHIP CONFIGURATION - MINIMALIST PROFESSIONAL
-# ============================================================================
-# Clean, fast prompt focused on essential information only
-# Colors: Green (success), Yellow (warning), Red (error), Cyan (location)
+# =============================================================================
+# STARSHIP PROMPT - Clean Gruvbox Style
+# =============================================================================
 
-# Get editor completions based on the config schema
 "$schema" = 'https://starship.rs/config-schema.json'
 
-# ============================================================================
-# GLOBAL SETTINGS
-# ============================================================================
-
-# No blank line between prompts for efficiency
 add_newline = false
-
-# Fast scanning for responsiveness
 scan_timeout = 10
-command_timeout = 1000
+command_timeout = 500
 
-# ============================================================================
+# =============================================================================
 # PROMPT FORMAT
-# ============================================================================
+# =============================================================================
 
-# Minimal format: directory + git + duration + prompt
 format = """
-$username\
-$hostname\
 $directory\
 $git_branch\
 $git_status\
-$cmd_duration\
 $character"""
 
-# ============================================================================
-# PROMPT CHARACTER
-# ============================================================================
+right_format = """
+$cmd_duration\
+$python\
+$nodejs"""
+
+# =============================================================================
+# CHARACTER
+# =============================================================================
 
 [character]
-success_symbol = "[>](bold green)"
-error_symbol = "[>](bold red)"
-vimcmd_symbol = "[<](bold yellow)"
+success_symbol = "[>](bold #b8bb26)"
+error_symbol = "[>](bold #fb4934)"
+vimcmd_symbol = "[<](bold #fabd2f)"
 
-# ============================================================================
-# DIRECTORY PATH
-# ============================================================================
+# =============================================================================
+# DIRECTORY
+# =============================================================================
 
 [directory]
-style = "bold cyan"
-read_only = " [RO]"
+style = "bold #83a598"
 truncation_length = 3
 truncation_symbol = ".../"
+home_symbol = "~"
+format = "[$path]($style) "
 
-# Remove emoji substitutions - use text only
 [directory.substitutions]
+"Documents" = "docs"
+"Downloads" = "dl"
+"GitHub" = "gh"
 
-# ============================================================================
-# GIT INFORMATION
-# ============================================================================
+# =============================================================================
+# GIT
+# =============================================================================
 
 [git_branch]
 symbol = ""
-format = " [$branch]($style)"
-style = "bold green"
+format = "[$branch]($style) "
+style = "bold #b8bb26"
 truncation_length = 20
 
 [git_status]
-format = '[$all_status$ahead_behind]($style)'
-style = "bold yellow"
-
-# Clean text-based indicators
-conflicted = "[conflict]"
+format = '([$all_status$ahead_behind]($style))'
+style = "bold #fabd2f"
+conflicted = "!"
+untracked = "?"
+modified = "~"
+staged = "+"
+renamed = ">"
+deleted = "x"
+ahead = "^${count}"
+behind = "v${count}"
+diverged = "^${ahead_count}v${behind_count}"
+stashed = "*"
 up_to_date = ""
-untracked = "[untracked]"
-ahead = "[+${count}]"
-diverged = "[+${ahead_count}-${behind_count}]"
-behind = "[-${count}]"
-stashed = "[stashed]"
-modified = "[modified]"
-staged = "[staged:${count}]"
-renamed = "[renamed]"
-deleted = "[deleted]"
 
-# Disable git_state for minimal output
-[git_state]
-disabled = true
-
-# ============================================================================
-# COMMAND DURATION
-# ============================================================================
+# =============================================================================
+# EXTRAS
+# =============================================================================
 
 [cmd_duration]
-min_time = 2_000
-format = " [${duration}](bold yellow)"
-show_milliseconds = false
-
-# ============================================================================
-# USER/HOST (SSH ONLY)
-# ============================================================================
-
-[username]
-style_user = "bold yellow"
-style_root = "bold red"
-format = "[$user]($style)"
-disabled = false
-show_always = false
-
-[hostname]
-ssh_only = true
-format = "[@$hostname]($style) "
-style = "bold yellow"
-disabled = false
-
-# ============================================================================
-# DISABLED MODULES
-# ============================================================================
-# Hide all programming language versions for clean prompt
-
-[nodejs]
-disabled = true
+min_time = 2000
+format = "[$duration]($style) "
+style = "bold #928374"
 
 [python]
+format = '[py](bold #fabd2f) '
+detect_extensions = ["py"]
+detect_files = ["requirements.txt", "pyproject.toml"]
+
+[nodejs]
+format = '[js](bold #b8bb26) '
+detect_files = ["package.json"]
+
+# =============================================================================
+# DISABLED
+# =============================================================================
+
+[username]
+disabled = true
+
+[hostname]
+disabled = true
+
+[time]
+disabled = true
+
+[battery]
+disabled = true
+
+[memory_usage]
+disabled = true
+
+[package]
 disabled = true
 
 [rust]
@@ -128,19 +119,10 @@ disabled = true
 [golang]
 disabled = true
 
-[php]
-disabled = true
-
 [java]
 disabled = true
 
 [docker_context]
-disabled = true
-
-[package]
-disabled = true
-
-[memory_usage]
 disabled = true
 
 [aws]
@@ -155,56 +137,8 @@ disabled = true
 [terraform]
 disabled = true
 
-[vagrant]
+[git_state]
 disabled = true
 
-[nix_shell]
-disabled = true
-
-[conda]
-disabled = true
-
-[julia]
-disabled = true
-
-[ruby]
-disabled = true
-
-[dotnet]
-disabled = true
-
-[elixir]
-disabled = true
-
-[elm]
-disabled = true
-
-[erlang]
-disabled = true
-
-[haskell]
-disabled = true
-
-[kotlin]
-disabled = true
-
-[lua]
-disabled = true
-
-[nim]
-disabled = true
-
-[ocaml]
-disabled = true
-
-[perl]
-disabled = true
-
-[scala]
-disabled = true
-
-[swift]
-disabled = true
-
-[zig]
+[deno]
 disabled = true
