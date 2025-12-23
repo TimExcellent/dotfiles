@@ -20,6 +20,10 @@ config.window_padding = { left = 8, right = 8, top = 8, bottom = 8 }
 config.scrollback_lines = 10000
 config.enable_scroll_bar = false
 
+-- Window size defaults (good for most displays)
+config.initial_cols = 140
+config.initial_rows = 40
+
 -- =============================================================================
 -- FONT
 -- =============================================================================
