@@ -42,6 +42,13 @@ zstyle ':completion:*' list-colors ''
 zstyle ':completion:*' menu select
 zstyle ':completion:*' verbose yes
 
+# === AUTOSUGGESTIONS & SYNTAX HIGHLIGHTING ===
+# Install: brew install zsh-autosuggestions zsh-syntax-highlighting
+[[ -f /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]] && \
+  source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+[[ -f /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]] && \
+  source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
 # =============================================================================
 # MODERN CLI TOOLS
 # =============================================================================
