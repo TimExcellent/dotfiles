@@ -2,7 +2,8 @@
 # =============================================================================
 # ZSH Configuration - Modern Terminal Setup
 # =============================================================================
-# Tools: eza, bat, fd, ripgrep, zoxide, fzf, atuin, navi
+# CLI Tools: eza, bat, fd, ripgrep, zoxide, fzf, atuin, navi
+# TUI Apps: lazygit, btop, yazi, glow, jless, lazydocker
 # AI: Claude Code (terminal), avante.nvim (Neovim)
 # =============================================================================
 
@@ -74,6 +75,39 @@ fi
 # fd (better find) and ripgrep (better grep)
 command -v fd &>/dev/null && alias find='fd'
 command -v rg &>/dev/null && alias grep='rg'
+
+# =============================================================================
+# TUI APPLICATIONS
+# =============================================================================
+
+# lazygit (visual git interface)
+if command -v lazygit &>/dev/null; then
+  alias lg='lazygit'
+fi
+
+# yazi (terminal file manager)
+if command -v yazi &>/dev/null; then
+  alias y='yazi'
+fi
+
+# glow (markdown viewer)
+if command -v glow &>/dev/null; then
+  alias mdcat='glow'
+  alias mdview='glow -p'
+fi
+
+# jless (JSON viewer)
+if command -v jless &>/dev/null; then
+  alias jl='jless'
+fi
+
+# btop (system monitor) - no alias needed, just ensure it's available
+command -v btop &>/dev/null
+
+# lazydocker (docker TUI) - conditional if installed later
+if command -v lazydocker &>/dev/null; then
+  alias lzd='lazydocker'
+fi
 
 # =============================================================================
 # NAVIGATION
@@ -161,6 +195,7 @@ help() {
   echo "=== Navigation ==="
   echo "  z <dir>  - Smart cd"
   echo "  zi       - Interactive directory picker"
+  echo "  y        - Visual file manager (yazi)"
   echo ""
   echo "=== Files ==="
   echo "  ll       - List with icons and git"
@@ -168,8 +203,18 @@ help() {
   echo "  fd       - Find files"
   echo "  rg       - Search in files"
   echo ""
+  echo "=== Visual TUI Apps ==="
+  echo "  lg       - Git interface (lazygit)"
+  echo "  btop     - System monitor"
+  echo "  y        - File manager (yazi)"
+  echo "  mdcat    - Markdown viewer (glow)"
+  echo "  jl       - JSON viewer (jless)"
+  echo "  lzd      - Docker manager (lazydocker)"
+  echo ""
   echo "=== AI ==="
   echo "  claude   - Claude Code"
+  echo ""
+  echo "Full cheatsheet: cat ~/Documents/GitHub/dotfiles/CHEATSHEET.md | bat"
 }
 
 mkcd() { mkdir -p "$1" && cd "$1" }

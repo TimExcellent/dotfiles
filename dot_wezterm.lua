@@ -156,8 +156,12 @@ config.keys = {
   { key = 'f', mods = 'CMD', action = act.Search 'CurrentSelectionOrEmptyString' },
   { key = 'r', mods = 'CMD|SHIFT', action = act.ReloadConfiguration },
 
-  -- Quick Nushell
+  -- Quick launch TUI applications
   { key = 'n', mods = 'CMD|SHIFT', action = act.SpawnCommandInNewTab { args = { '/opt/homebrew/bin/nu' } } },
+  { key = 'g', mods = 'CMD|SHIFT', action = act.SpawnCommandInNewTab { args = { '/opt/homebrew/bin/lazygit' } } },
+  { key = 'b', mods = 'CMD|SHIFT', action = act.SpawnCommandInNewTab { args = { '/opt/homebrew/bin/btop' } } },
+  { key = 'y', mods = 'CMD|SHIFT', action = act.SpawnCommandInNewTab { args = { '/opt/homebrew/bin/yazi' } } },
+  { key = 'l', mods = 'CMD|SHIFT', action = act.SpawnCommandInNewTab { args = { '/opt/homebrew/bin/lazydocker' } } },
 }
 
 -- =============================================================================

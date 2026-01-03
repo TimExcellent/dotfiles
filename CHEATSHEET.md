@@ -44,6 +44,14 @@ Quick reference for all shortcuts, commands, and examples.
 | `Cmd+=` / `Cmd+-` | Increase/decrease font size |
 | `Cmd+0` | Reset font size |
 
+### Quick Launch TUI Apps
+| Shortcut | Action |
+|----------|--------|
+| `Cmd+Shift+G` | Open lazygit in new tab |
+| `Cmd+Shift+B` | Open btop (system monitor) in new tab |
+| `Cmd+Shift+Y` | Open yazi (file manager) in new tab |
+| `Cmd+Shift+L` | Open lazydocker in new tab |
+
 ---
 
 ## 💻 Shell Shortcuts (Zsh)
@@ -187,6 +195,122 @@ tldr find        # Find command examples
 ```bash
 Ctrl+R           # Search full history (fuzzy)
 # Shows: command, directory, time, exit code
+```
+
+---
+
+## 🎨 Visual TUI Applications
+
+### System Monitoring (btop)
+```bash
+btop             # Beautiful resource monitor
+# Mouse-enabled interface showing:
+# - CPU usage per core (graph + %)
+# - Memory/swap usage
+# - Disk I/O and usage
+# - Network traffic
+# - Process list (sortable, searchable, killable)
+# Controls: Arrow keys, /, k (kill), q (quit)
+```
+
+### Git Interface (lazygit)
+```bash
+lazygit          # Visual git interface
+lg               # Alias for lazygit
+
+# Panel navigation: 1-5 (status/files/branches/commits/stash)
+# Common actions:
+#   <Space>    Stage/unstage file
+#   c          Commit
+#   P          Push
+#   p          Pull
+#   n          New branch
+#   m          Merge
+#   d          Show diff
+#   ?          Help menu
+```
+
+### Docker Management (lazydocker)
+```bash
+lazydocker       # Visual Docker interface
+lzd              # Alias for lazydocker
+
+# Navigation: Tab (cycle panels), Arrow keys
+# Panels: Containers, Images, Volumes, Networks
+# Common actions:
+#   r          Restart container
+#   s          Stop container
+#   d          Remove container
+#   l          View logs
+#   e          Execute shell
+#   ?          Help menu
+```
+
+### File Manager (yazi)
+```bash
+yazi             # Terminal file manager
+y                # Quick alias
+
+# Navigation:
+#   h/j/k/l    Vim-style navigation
+#   <Space>    Select/deselect file
+#   v          Visual mode (multi-select)
+#   y          Copy (yank)
+#   d          Cut (delete/move)
+#   p          Paste
+#   /          Search
+#   z          Jump with zoxide
+#   q          Quit
+# Features: Image preview, syntax highlighting, icons
+```
+
+### Markdown Viewer (glow)
+```bash
+glow README.md   # Render markdown beautifully
+mdcat file.md    # Alias for glow
+glow -p file.md  # Pager mode
+
+# In pager mode:
+#   j/k        Scroll
+#   /          Search
+#   q          Quit
+```
+
+### JSON Viewer (jless)
+```bash
+jless data.json  # Interactive JSON viewer
+jl data.json     # Quick alias
+
+# Navigation:
+#   j/k        Move up/down
+#   h/l        Collapse/expand
+#   <Space>    Expand recursively
+#   /          Search
+#   q          Quit
+# Features: Syntax highlighting, collapsible trees, search
+```
+
+### Interactive JSON Explorer (fx)
+```bash
+fx data.json     # Explore JSON interactively
+# Arrow keys to navigate
+# Type . to access fields (like fx .users[0].name)
+# Supports JavaScript expressions
+```
+
+### Shell Script UI Toolkit (gum)
+```bash
+# Use in scripts to add interactive elements:
+gum input        # Text input
+gum choose       # Selection menu
+gum confirm      # Yes/no prompt
+gum spin         # Spinner for long tasks
+gum style        # Style text output
+
+# Example script:
+NAME=$(gum input --placeholder "Your name")
+CHOICE=$(gum choose "Option 1" "Option 2" "Option 3")
+gum confirm "Continue?" && echo "Let's go!"
 ```
 
 ---
@@ -357,6 +481,7 @@ git add . && git commit -m "Update" && git push
 ```bash
 vf               # Fuzzy find + open in nvim
 fd config | fzf | xargs nvim  # Find config, pick, edit
+y                # Open yazi file manager, navigate visually
 ```
 
 ### Search and Replace Across Files
@@ -368,6 +493,7 @@ rg "oldtext" -l  # Find files containing "oldtext"
 ### View Git Changes in Style
 ```bash
 gd | bat -l diff  # Git diff with syntax highlighting
+lg               # Visual git interface with lazygit
 ```
 
 ### Process JSON/CSV
@@ -375,12 +501,51 @@ gd | bat -l diff  # Git diff with syntax highlighting
 nu               # Switch to Nushell
 open data.json | where active == true | select name, email
 open sales.csv | where amount > 100 | sort-by date | to json
+
+# Or use interactive viewers:
+jless data.json  # Browse JSON interactively
+fx data.json     # Explore with JavaScript expressions
 ```
 
 ### Find Large Files
 ```bash
 fd -t f -x du -h {} | sort -rh | head -20  # ZSH method
 nu -c "ls **/* | where size > 100mb | sort-by size --reverse"  # Nushell method
+```
+
+### Documentation Workflows
+```bash
+glow README.md   # Read markdown in style
+glow -p DOCS/    # Browse all markdown in directory (pager mode)
+tldr git         # Quick command examples
+navi             # Interactive cheatsheets (Ctrl+G)
+```
+
+### System Monitoring & Management
+```bash
+btop             # Beautiful system monitor (replaces htop)
+lazydocker       # Manage containers visually
+# Both support mouse, vim keys, and have great UIs
+```
+
+### Visual File Operations
+```bash
+y                # Open yazi file manager
+# Navigate with hjkl, preview files, batch operations
+# Press 'y' to copy, 'd' to cut, 'p' to paste
+# Press 'z' to jump to directory with zoxide integration
+```
+
+### Interactive Scripting
+```bash
+# Create user-friendly scripts with gum:
+#!/bin/bash
+PROJECT=$(gum input --placeholder "Project name")
+TYPE=$(gum choose "frontend" "backend" "fullstack")
+if gum confirm "Create project '$PROJECT'?"; then
+    gum spin --spinner dot --title "Creating..." -- sleep 2
+    echo "✓ Done!"
+fi
 ```
 
 ---
@@ -395,7 +560,15 @@ nu -c "ls **/* | where size > 100mb | sort-by size --reverse"  # Nushell method
 6. **Split panes** (`Cmd+D`) instead of new tabs for multitasking
 7. **Use `z`** instead of `cd` - it learns your directories
 8. **Theme switching**: `Ctrl+Shift+T` in WezTerm, `:colorscheme` in nvim
+9. **Visual git**: Use `lg` (lazygit) instead of memorizing git commands
+10. **Monitor system**: `btop` gives beautiful, mouse-enabled system stats
+11. **Browse files visually**: `y` (yazi) for when `ls` isn't enough
+12. **Read docs in style**: `glow README.md` makes markdown beautiful
+13. **Explore JSON**: `jless data.json` instead of scrolling through raw JSON
+14. **Quick Docker check**: `lzd` (lazydocker) beats typing `docker ps` repeatedly
 
 ---
 
 **Quick Start**: Type `help` in your terminal or press `<Space>` in Neovim!
+
+**TUI Discovery**: Try `lg`, `btop`, `y`, or `glow README.md` to see the visual power!
