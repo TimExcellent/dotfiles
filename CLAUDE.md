@@ -17,15 +17,16 @@ Personal dotfiles repository for a modern, terminal-first macOS development envi
 | `dot_wezterm.lua` | `~/.wezterm.lua` | WezTerm terminal config |
 | `dot_zshrc` | `~/.zshrc` | Zsh shell config |
 | `dot_config/starship.toml` | `~/.config/starship.toml` | Starship prompt |
+| `dot_config/nvim/` | `~/.config/nvim/` | Neovim/LazyVim config |
 
 **Never edit target files directly** - they will be overwritten by chezmoi.
 
 ### Configuration Layers
 
-1. **Terminal Layer**: WezTerm (Lua config) provides multiplexing, theming, keybindings
+1. **Terminal Layer**: WezTerm (Lua config) provides multiplexing, theming, keybindings, workspaces
 2. **Shell Layer**: Zsh (primary) and Nushell (data processing) with modern CLI tool integration
 3. **Prompt Layer**: Starship provides consistent prompt across all shells
-4. **Editor Layer**: Neovim with LazyVim (NOT managed by this repo - lives in `~/.config/nvim/`)
+4. **Editor Layer**: Neovim with LazyVim (managed in `dot_config/nvim/`)
 
 ### Modern CLI Tools Stack
 
@@ -88,6 +89,9 @@ Starship colors: Defined using hex codes (Gruvbox palette) throughout dot_config
 ### WezTerm (dot_wezterm.lua)
 
 - **Theme switcher**: `Ctrl+Shift+T` opens InputSelector with 10 preset themes
+- **Workspaces**: `Cmd+Shift+P` project switcher, `Cmd+Shift+W` workspace list, `Cmd+Shift+[/]` cycle
+- **Claude launcher**: `Cmd+Shift+C` splits right and runs claude
+- **Help overlay**: `Cmd+Shift+/` shows quick-action key table
 - **Keybindings**: macOS-style (`CMD` prefix) for panes, tabs, navigation
 - **Window size**: `initial_cols = 140, initial_rows = 40` for reasonable default size
 - **Gruvbox colors**: Custom tab_bar colors defined in `config.colors`
@@ -106,15 +110,16 @@ Starship colors: Defined using hex codes (Gruvbox palette) throughout dot_config
 - **Gruvbox colors**: All colors use hex codes matching Gruvbox palette
 - **Disabled modules**: Most language/tool modules disabled to keep prompt clean
 
-## Neovim Integration (External)
+## Neovim Configuration
 
-Neovim config lives in `~/.config/nvim/` (NOT in this repo). Key plugins:
+Neovim config is tracked in `dot_config/nvim/` and deployed to `~/.config/nvim/`. Uses LazyVim v8 with extras:
+- `neo-tree` (file explorer sidebar)
 - `gruvbox-material` (colorscheme)
 - `avante.nvim` (AI coding assistant)
 - `render-markdown.nvim` (markdown rendering)
-- `zen-mode.nvim` (distraction-free writing)
+- `claude.nvim` (Claude Code integration)
 
-These are managed by LazyVim and installed via `lua/plugins/` files.
+**Excluded from tracking:** `lazy-lock.json`, `.git/`, `LICENSE`, `README.md`, `.neoconf.json`
 
 ## Important Constraints
 

@@ -86,6 +86,56 @@ wezterm.on('format-tab-title', function(tab, tabs, panes, config, hover, max_wid
   return string.format(' %d: %s ', index, title)
 end)
 
+-- Status bar updates: workspace name (right) + help key table hint (left)
+wezterm.on('update-right-status', function(window, pane)
+  -- Right status: workspace name when 2+ workspaces exist
+  local workspace = window:active_workspace()
+  local workspaces = wezterm.mux.get_workspace_names()
+  if #workspaces > 1 then
+    window:set_right_status(wezterm.format({
+      { Foreground = { Color = '#fabd2f' } },
+      { Text = '\u{2387} ' .. workspace },
+      { Foreground = { Color = '#928374' } },
+      { Text = ' [' .. #workspaces .. ']  ' },
+    }))
+  else
+    window:set_right_status('')
+  end
+
+  -- Left status: help overlay hint when active
+  local key_table = window:active_key_table()
+  if key_table == 'help' then
+    window:set_left_status(wezterm.format({
+      { Foreground = { Color = '#fabd2f' } },
+      { Text = ' HELP: p=projects  w=workspaces  c=claude  g=git  y=yazi  b=btop  Esc=cancel ' },
+    }))
+  else
+    window:set_left_status('')
+  end
+end)
+
+-- Project workspace scanner
+local project_dirs = {
+  os.getenv('HOME') .. '/Documents/Github',
+  os.getenv('HOME') .. '/Documents/excession',
+}
+
+local function get_project_choices()
+  local choices = {}
+  local seen = {}
+  for _, base in ipairs(project_dirs) do
+    for _, path in ipairs(wezterm.glob(base .. '/*')) do
+      local name = path:match('/([^/]+)$')
+      if name and not seen[name] then
+        seen[name] = true
+        table.insert(choices, { label = name, id = path })
+      end
+    end
+  end
+  table.sort(choices, function(a, b) return a.label < b.label end)
+  return choices
+end
+
 -- =============================================================================
 -- KEYBINDINGS
 -- =============================================================================
@@ -162,6 +212,101 @@ config.keys = {
   { key = 'b', mods = 'CMD|SHIFT', action = act.SpawnCommandInNewTab { args = { '/opt/homebrew/bin/btop' } } },
   { key = 'y', mods = 'CMD|SHIFT', action = act.SpawnCommandInNewTab { args = { '/opt/homebrew/bin/yazi' } } },
   { key = 'l', mods = 'CMD|SHIFT', action = act.SpawnCommandInNewTab { args = { '/opt/homebrew/bin/lazydocker' } } },
+
+  -- Workspace management: select project → open nvim (top) + terminal (bottom)
+  { key = 'P', mods = 'CMD|SHIFT', action = wezterm.action_callback(function(window, pane)
+    local choices = get_project_choices()
+    window:perform_action(act.InputSelector({
+      title = 'Switch to Project Workspace',
+      choices = choices,
+      fuzzy = true,
+      action = wezterm.action_callback(function(inner_window, inner_pane, id, label)
+        if not id then return end
+
+        -- If workspace already exists, just switch to it
+        for _, name in ipairs(wezterm.mux.get_workspace_names()) do
+          if name == label then
+            inner_window:perform_action(act.SwitchToWorkspace({ name = label }), inner_pane)
+            return
+          end
+        end
+
+        -- New workspace: spawn nvim on top, terminal below
+        local tab, editor_pane, mux_window = wezterm.mux.spawn_window({
+          workspace = label,
+          cwd = id,
+          args = { '/opt/homebrew/bin/nvim' },
+        })
+        editor_pane:split({
+          direction = 'Bottom',
+          size = 0.3,
+          cwd = id,
+        })
+        inner_window:perform_action(act.SwitchToWorkspace({ name = label }), inner_pane)
+      end),
+    }), pane)
+  end) },
+  { key = 'W', mods = 'CMD|SHIFT', action = act.ShowLauncherArgs { flags = 'FUZZY|WORKSPACES' } },
+  { key = '[', mods = 'CMD|SHIFT', action = act.SwitchWorkspaceRelative(-1) },
+  { key = ']', mods = 'CMD|SHIFT', action = act.SwitchWorkspaceRelative(1) },
+
+  -- Claude Code pane (split right, run claude)
+  { key = 'c', mods = 'CMD|SHIFT', action = act.SplitHorizontal {
+    domain = 'CurrentPaneDomain',
+    args = { '/bin/zsh', '-ic', 'claude' },
+  } },
+
+  -- Terminal pane (split below)
+  { key = 'Enter', mods = 'CMD|SHIFT', action = act.SplitVertical {
+    domain = 'CurrentPaneDomain',
+  } },
+
+  -- Help overlay — activates HELP key table with status hint
+  { key = 'F1', action = act.ActivateKeyTable {
+    name = 'help',
+    one_shot = true,
+    timeout_milliseconds = 5000,
+  } },
+}
+
+-- =============================================================================
+-- HELP KEY TABLE
+-- =============================================================================
+
+config.key_tables = {
+  help = {
+    { key = 'p', action = wezterm.action_callback(function(window, pane)
+      local choices = get_project_choices()
+      window:perform_action(act.InputSelector({
+        title = 'Switch to Project Workspace',
+        choices = choices,
+        fuzzy = true,
+        action = wezterm.action_callback(function(win, p, id, label)
+          if not id then return end
+          for _, name in ipairs(wezterm.mux.get_workspace_names()) do
+            if name == label then
+              win:perform_action(act.SwitchToWorkspace({ name = label }), p)
+              return
+            end
+          end
+          local tab, editor_pane, mux_window = wezterm.mux.spawn_window({
+            workspace = label, cwd = id,
+            args = { '/opt/homebrew/bin/nvim' },
+          })
+          editor_pane:split({ direction = 'Bottom', size = 0.3, cwd = id })
+          win:perform_action(act.SwitchToWorkspace({ name = label }), p)
+        end),
+      }), pane)
+    end) },
+    { key = 'w', action = act.ShowLauncherArgs { flags = 'FUZZY|WORKSPACES' } },
+    { key = 'c', action = act.SpawnCommandInNewTab {
+      args = { '/bin/zsh', '-ic', 'claude' },
+    } },
+    { key = 'g', action = act.SpawnCommandInNewTab { args = { '/opt/homebrew/bin/lazygit' } } },
+    { key = 'y', action = act.SpawnCommandInNewTab { args = { '/opt/homebrew/bin/yazi' } } },
+    { key = 'b', action = act.SpawnCommandInNewTab { args = { '/opt/homebrew/bin/btop' } } },
+    { key = 'Escape', action = 'PopKeyTable' },
+  },
 }
 
 -- =============================================================================

@@ -34,6 +34,25 @@ Quick reference for all shortcuts, commands, and examples.
 | `Cmd+Opt+Shift+K` | Resize up |
 | `Cmd+Opt+Shift+L` | Resize right |
 
+### Workspaces
+| Shortcut | Action |
+|----------|--------|
+| `Cmd+Shift+P` | **Project switcher** — fuzzy search all projects, open workspace |
+| `Cmd+Shift+W` | **Workspace list** — switch between active workspaces |
+| `Cmd+Shift+[` | Previous workspace |
+| `Cmd+Shift+]` | Next workspace |
+
+### Claude Code & Terminals
+| Shortcut | Action |
+|----------|--------|
+| `Cmd+Shift+C` | **Open Claude Code** in split-right pane |
+| `Cmd+Shift+Enter` | **New terminal** in split-below pane |
+
+### Help & Discovery
+| Shortcut | Action |
+|----------|--------|
+| `Cmd+Shift+/` | **Help overlay** — then press: p=projects, w=workspaces, c=claude, g=git, y=yazi, b=btop |
+
 ### Other
 | Shortcut | Action |
 |----------|--------|
@@ -91,6 +110,16 @@ Quick reference for all shortcuts, commands, and examples.
 | `:Lazy` | Plugin manager |
 | `:checkhealth` | Diagnostic check |
 
+### File Explorer (Neo-tree)
+| Shortcut | Action |
+|----------|--------|
+| `<Space>e` | Toggle file explorer (project root) |
+| `<Space>E` | Toggle file explorer (cwd) |
+| `<Space>ge` | Git status explorer |
+| `<Space>be` | Buffer explorer |
+| `l` / `h` | Open/close tree nodes (in neo-tree) |
+| `Y` | Copy file path (in neo-tree) |
+
 ### File Operations
 | Shortcut | Action |
 |----------|--------|
@@ -98,7 +127,6 @@ Quick reference for all shortcuts, commands, and examples.
 | `<Space>fg` | Find in files (grep) |
 | `<Space>fb` | Find buffers |
 | `<Space>fr` | Recent files |
-| `<Space>e` | File explorer (toggle) |
 
 ### AI Assistance (avante.nvim)
 | Shortcut | Action |
