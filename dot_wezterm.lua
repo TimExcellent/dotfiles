@@ -107,7 +107,7 @@ wezterm.on('update-right-status', function(window, pane)
   if key_table == 'help' then
     window:set_left_status(wezterm.format({
       { Foreground = { Color = '#fabd2f' } },
-      { Text = ' HELP: p=projects  w=workspaces  c=claude  g=git  y=yazi  b=btop  Esc=cancel ' },
+      { Text = ' HELP: p=projects  w=workspaces  c=claude  g=git  y=yazi  b=btop  v=visidata  Esc=cancel ' },
     }))
   else
     window:set_left_status('')
@@ -212,6 +212,7 @@ config.keys = {
   { key = 'b', mods = 'CMD|SHIFT', action = act.SpawnCommandInNewTab { args = { '/opt/homebrew/bin/btop' } } },
   { key = 'y', mods = 'CMD|SHIFT', action = act.SpawnCommandInNewTab { args = { '/opt/homebrew/bin/yazi' } } },
   { key = 'l', mods = 'CMD|SHIFT', action = act.SpawnCommandInNewTab { args = { '/opt/homebrew/bin/lazydocker' } } },
+  { key = 'v', mods = 'CMD|SHIFT', action = act.SpawnCommandInNewTab { args = { os.getenv('HOME') .. '/.local/bin/vd' } } },
 
   -- Workspace management: select project → open nvim (top) + terminal (bottom)
   { key = 'P', mods = 'CMD|SHIFT', action = wezterm.action_callback(function(window, pane)
@@ -231,16 +232,22 @@ config.keys = {
           end
         end
 
-        -- New workspace: spawn nvim on top, terminal below
+        -- New workspace: nvim+Neotree on top, terminal + Claude Code below
         local tab, editor_pane, mux_window = wezterm.mux.spawn_window({
           workspace = label,
           cwd = id,
-          args = { '/opt/homebrew/bin/nvim' },
+          args = { '/opt/homebrew/bin/nvim', '+Neotree' },
         })
-        editor_pane:split({
+        local terminal_pane = editor_pane:split({
           direction = 'Bottom',
-          size = 0.3,
+          size = 0.35,
           cwd = id,
+        })
+        terminal_pane:split({
+          direction = 'Right',
+          size = 0.5,
+          cwd = id,
+          args = { '/bin/zsh', '-ic', 'claude' },
         })
         inner_window:perform_action(act.SwitchToWorkspace({ name = label }), inner_pane)
       end),
@@ -291,9 +298,12 @@ config.key_tables = {
           end
           local tab, editor_pane, mux_window = wezterm.mux.spawn_window({
             workspace = label, cwd = id,
-            args = { '/opt/homebrew/bin/nvim' },
+            args = { '/opt/homebrew/bin/nvim', '+Neotree' },
           })
-          editor_pane:split({ direction = 'Bottom', size = 0.3, cwd = id })
+          local term_pane = editor_pane:split({ direction = 'Bottom', size = 0.35, cwd = id })
+          term_pane:split({ direction = 'Right', size = 0.5, cwd = id,
+            args = { '/bin/zsh', '-ic', 'claude' },
+          })
           win:perform_action(act.SwitchToWorkspace({ name = label }), p)
         end),
       }), pane)
@@ -305,6 +315,7 @@ config.key_tables = {
     { key = 'g', action = act.SpawnCommandInNewTab { args = { '/opt/homebrew/bin/lazygit' } } },
     { key = 'y', action = act.SpawnCommandInNewTab { args = { '/opt/homebrew/bin/yazi' } } },
     { key = 'b', action = act.SpawnCommandInNewTab { args = { '/opt/homebrew/bin/btop' } } },
+    { key = 'v', action = act.SpawnCommandInNewTab { args = { os.getenv('HOME') .. '/.local/bin/vd' } } },
     { key = 'Escape', action = 'PopKeyTable' },
   },
 }

@@ -51,7 +51,7 @@ Quick reference for all shortcuts, commands, and examples.
 ### Help & Discovery
 | Shortcut | Action |
 |----------|--------|
-| `Cmd+Shift+/` | **Help overlay** — then press: p=projects, w=workspaces, c=claude, g=git, y=yazi, b=btop |
+| `F1` | **Help overlay** — then press: p=projects, w=workspaces, c=claude, g=git, y=yazi, b=btop, v=visidata |
 
 ### Other
 | Shortcut | Action |
@@ -70,6 +70,7 @@ Quick reference for all shortcuts, commands, and examples.
 | `Cmd+Shift+B` | Open btop (system monitor) in new tab |
 | `Cmd+Shift+Y` | Open yazi (file manager) in new tab |
 | `Cmd+Shift+L` | Open lazydocker in new tab |
+| `Cmd+Shift+V` | Open visidata (data viewer) in new tab |
 
 ---
 
@@ -290,6 +291,31 @@ y                # Quick alias
 #   z          Jump with zoxide
 #   q          Quit
 # Features: Image preview, syntax highlighting, icons
+```
+
+### Data Viewing (duckdb, visidata)
+```bash
+# DuckDB — SQL queries on any data file
+duckdb                           # Interactive SQL shell
+duckdb -c "SELECT * FROM 'data.parquet' LIMIT 10"
+duckdb -c "SELECT * FROM 'data.csv' WHERE amount > 100"
+duckdb -c "DESCRIBE SELECT * FROM 'data.parquet'"
+
+# VisiData — universal data file TUI
+vd data.csv                      # Open CSV interactively
+vd data.json                     # Open JSON
+vd data.parquet                  # Open Parquet
+Cmd+Shift+V                      # Launch visidata in WezTerm
+# Navigation: hjkl, / (search), q (quit)
+# Columns: - (hide), _ (expand), ! (key column)
+# Sort: [ (asc), ] (desc)
+# Frequency: F (frequency table on column)
+
+# In Neovim:
+#   Open .csv → rainbow_csv auto-colors columns
+#   Open .parquet → duckdb preview (first 100 rows)
+#   Open .pdf → pdftotext extraction
+#   <leader>fp → open PDF in Preview.app
 ```
 
 ### Markdown Viewer (glow)
