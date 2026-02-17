@@ -3,7 +3,7 @@
 # ZSH Configuration - Modern Terminal Setup
 # =============================================================================
 # CLI Tools: eza, bat, fd, ripgrep, zoxide, fzf, atuin, navi
-# TUI Apps: lazygit, btop, yazi, glow, jless, lazydocker
+# TUI Apps: lazygit, btop, yazi, glow, jless, lazydocker, timg, chafa
 # AI: Claude Code (terminal), avante.nvim (Neovim)
 # =============================================================================
 
@@ -109,6 +109,15 @@ if command -v lazydocker &>/dev/null; then
   alias lzd='lazydocker'
 fi
 
+# timg (terminal image/video viewer) - uses iTerm2 protocol for WezTerm
+if command -v timg &>/dev/null; then
+  alias img='timg -p i'
+  alias imggrid='timg -p i --grid=3x2'
+fi
+
+# chafa (image-to-text renderer) - fallback for SSH/basic terminals
+command -v chafa &>/dev/null
+
 # =============================================================================
 # NAVIGATION
 # =============================================================================
@@ -210,6 +219,9 @@ help() {
   echo "  mdcat    - Markdown viewer (glow)"
   echo "  jl       - JSON viewer (jless)"
   echo "  lzd      - Docker manager (lazydocker)"
+  echo "  img      - Image/video viewer (timg)"
+  echo "  imggrid  - Image grid viewer (timg)"
+  echo "  chafa    - Image-to-text renderer"
   echo ""
   echo "=== AI ==="
   echo "  claude   - Claude Code"

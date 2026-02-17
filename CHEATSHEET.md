@@ -318,6 +318,24 @@ Cmd+Shift+V                      # Launch visidata in WezTerm
 #   <leader>fp → open PDF in Preview.app
 ```
 
+### Image & Video Viewing (timg, chafa)
+```bash
+# timg — full image/video viewer using WezTerm's iTerm2 protocol
+img photo.jpg            # Display image inline
+img *.png                # Display multiple images
+imggrid *.jpg            # Grid layout (3x2)
+timg -p i video.mp4      # Play video in terminal
+timg -p i document.pdf   # Render PDF pages
+timg -p i image.svg      # Render SVG
+
+# chafa — text-mode image renderer (great over SSH)
+chafa photo.jpg          # Auto-detect best output mode
+chafa -s 80x24 photo.jpg # Fit to specific size
+
+# wezterm imgcat — built-in, zero-config
+wezterm imgcat photo.png # Native WezTerm image display
+```
+
 ### Markdown Viewer (glow)
 ```bash
 glow README.md   # Render markdown beautifully

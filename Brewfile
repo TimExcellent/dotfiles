@@ -7,6 +7,8 @@ brew "awscli"
 brew "bat"
 # Resource monitor. C++ version and continuation of bashtop and bpytop
 brew "btop"
+# Versatile and fast Unicode/ASCII/ANSI graphics renderer
+brew "chafa"
 # Manage your dotfiles across multiple diverse machines, securely
 brew "chezmoi"
 # General-purpose scripting language
@@ -65,6 +67,8 @@ brew "starship"
 brew "tcl-tk"
 # Tool Command Language
 brew "tcl-tk@8"
+# Terminal image and video viewer
+brew "timg"
 # Simplified and community-driven man pages
 brew "tldr"
 # Internet file retriever
