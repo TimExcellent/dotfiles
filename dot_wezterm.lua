@@ -117,7 +117,6 @@ end)
 -- Project workspace scanner
 local project_dirs = {
   os.getenv('HOME') .. '/Documents/Github',
-  os.getenv('HOME') .. '/Documents/excession',
 }
 
 local function get_project_choices()
