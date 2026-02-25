@@ -135,6 +135,20 @@ local function get_project_choices()
   return choices
 end
 
+-- Find next available workspace name (appends " 2", " 3", etc. if taken)
+local function next_workspace_name(base)
+  local taken = {}
+  for _, n in ipairs(wezterm.mux.get_workspace_names()) do
+    taken[n] = true
+  end
+  if not taken[base] then return base end
+  local i = 2
+  while taken[base .. ' ' .. i] do
+    i = i + 1
+  end
+  return base .. ' ' .. i
+end
+
 -- =============================================================================
 -- KEYBINDINGS
 -- =============================================================================
@@ -223,17 +237,10 @@ config.keys = {
       action = wezterm.action_callback(function(inner_window, inner_pane, id, label)
         if not id then return end
 
-        -- If workspace already exists, just switch to it
-        for _, name in ipairs(wezterm.mux.get_workspace_names()) do
-          if name == label then
-            inner_window:perform_action(act.SwitchToWorkspace({ name = label }), inner_pane)
-            return
-          end
-        end
-
-        -- New workspace: nvim+Neotree on top, terminal + Claude Code below
+        -- Always create a new workspace (use Cmd+Shift+W to switch between existing)
+        local ws_name = next_workspace_name(label)
         local tab, editor_pane, mux_window = wezterm.mux.spawn_window({
-          workspace = label,
+          workspace = ws_name,
           cwd = id,
           args = { '/opt/homebrew/bin/nvim', '+Neotree' },
         })
@@ -248,7 +255,7 @@ config.keys = {
           cwd = id,
           args = { '/bin/zsh', '-ic', 'claude' },
         })
-        inner_window:perform_action(act.SwitchToWorkspace({ name = label }), inner_pane)
+        inner_window:perform_action(act.SwitchToWorkspace({ name = ws_name }), inner_pane)
       end),
     }), pane)
   end) },
@@ -289,21 +296,16 @@ config.key_tables = {
         fuzzy = true,
         action = wezterm.action_callback(function(win, p, id, label)
           if not id then return end
-          for _, name in ipairs(wezterm.mux.get_workspace_names()) do
-            if name == label then
-              win:perform_action(act.SwitchToWorkspace({ name = label }), p)
-              return
-            end
-          end
+          local ws_name = next_workspace_name(label)
           local tab, editor_pane, mux_window = wezterm.mux.spawn_window({
-            workspace = label, cwd = id,
+            workspace = ws_name, cwd = id,
             args = { '/opt/homebrew/bin/nvim', '+Neotree' },
           })
           local term_pane = editor_pane:split({ direction = 'Bottom', size = 0.35, cwd = id })
           term_pane:split({ direction = 'Right', size = 0.5, cwd = id,
             args = { '/bin/zsh', '-ic', 'claude' },
           })
-          win:perform_action(act.SwitchToWorkspace({ name = label }), p)
+          win:perform_action(act.SwitchToWorkspace({ name = ws_name }), p)
         end),
       }), pane)
     end) },
