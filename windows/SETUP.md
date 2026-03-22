@@ -2,50 +2,63 @@
 
 Second-class citizen — mirrors the macOS/Linux experience as closely as possible but maintained separately.
 
-## Prerequisites
+## Full Install (all tools)
 
-Install via winget (recommended):
+Run from an elevated PowerShell or let winget prompt for UAC:
 
 ```powershell
+# Core
 winget install wez.wezterm
 winget install Git.Git
+winget install Neovim.Neovim
 winget install Starship.Starship
+
+# Modern CLI replacements
+winget install sharkdp.bat
+winget install sharkdp.fd
+winget install eza-community.eza
+winget install BurntSushi.ripgrep.MSVC
+winget install junegunn.fzf
+winget install ajeetdsouza.zoxide
+winget install atuinsh.atuin
+winget install dbrgn.tealdeer
+
+# TUI apps
+winget install jesseduffield.lazygit
+winget install sxyazi.yazi
+winget install charmbracelet.glow
 ```
 
 ### Fonts
 
-Install Hack Nerd Font (required for icons):
-
-```powershell
-# Option 1: via scoop
-scoop bucket add nerd-fonts
-scoop install Hack-NF-Mono
-
-# Option 2: manual download from https://www.nerdfonts.com/font-downloads
-# Install "Hack Nerd Font" — the Mono variant
-```
-
-### Optional TUI tools
-
-```powershell
-winget install jesseduffield.lazygit
-winget install sxyazi.yazi
-scoop install btop
-winget install Neovim.Neovim
-```
-
-## Installation
-
-Copy the WezTerm config to your home directory:
-
-```powershell
-copy windows\dot_wezterm.lua %USERPROFILE%\.wezterm.lua
-```
-
-Or from Git Bash:
+Download and install Hack Nerd Font (required for icons):
 
 ```bash
+# From Git Bash — downloads and installs to user fonts
+curl -sL -o /tmp/Hack.zip "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Hack.zip"
+mkdir -p /tmp/HackFont && cd /tmp/HackFont && unzip -o /tmp/Hack.zip
+powershell.exe -Command "\$fonts = (New-Object -ComObject Shell.Application).Namespace(0x14); Get-ChildItem 'C:\Users\$env:USERNAME\AppData\Local\Temp\HackFont\HackNerdFontMono-*.ttf' | ForEach-Object { \$fonts.CopyHere(\$_.FullName, 0x10) }"
+```
+
+## Deploying Configs
+
+```bash
+# WezTerm
 cp windows/dot_wezterm.lua ~/.wezterm.lua
+
+# Bash (shell aliases, tool integrations, starship prompt)
+cp windows/dot_bashrc ~/.bashrc
+
+# Neovim — IMPORTANT: Windows uses AppData/Local/nvim, NOT .config/nvim
+mkdir -p ~/AppData/Local/nvim
+cp -r dot_config/nvim/* ~/AppData/Local/nvim/
+
+# Starship prompt
+mkdir -p ~/.config
+cp dot_config/starship.toml ~/.config/starship.toml
+
+# Bootstrap LazyVim plugins (first run downloads everything)
+nvim --headless -c 'autocmd User LazyDone quitall'
 ```
 
 ## What's Different from macOS/Linux
@@ -75,18 +88,24 @@ cp windows/dot_wezterm.lua ~/.wezterm.lua
 
 - **Default shell**: Git Bash (not zsh) — closest POSIX experience on Windows
 - **Font size**: 12pt (vs 14pt on macOS) — Windows DPI scaling is different
+- **Neovim config path**: `~/AppData/Local/nvim/` (not `~/.config/nvim/`)
+- **Neovim data path**: `~/AppData/Local/nvim-data/` (not `~/.local/share/nvim/`)
 - **Tool discovery**: Checks scoop shims first, then falls back to PATH
 - **Project dirs**: `~/Documents/GitHub/` (same relative path, different absolute)
-- **Removed**: Nushell launcher, lazydocker, visidata (not typically available on Windows)
+- **Shell config**: `.bashrc` (not `.zshrc`) — same aliases and integrations
 
 ### What's identical
 
 - Gruvbox Dark Hard theme + all 10 theme choices
 - Tab bar styling and colors
-- Workspace model (project switcher, Claude Code split)
+- Workspace model (nvim+Neotree top, terminal+Claude bottom)
+- Neovim config (LazyVim + all plugins shared from `dot_config/nvim/`)
+- Starship prompt config (shared from `dot_config/starship.toml`)
 - Quick select patterns (URLs, paths, hashes, IPs)
 - Help overlay (F1)
-- Status bar (workspace indicator)
+- All CLI tool aliases (eza, bat, fd, rg, fzf, zoxide, etc.)
+- FZF Gruvbox color scheme
+- Git aliases
 
 ## Keeping in Sync
 
@@ -96,5 +115,7 @@ When the macOS/Linux config (`dot_wezterm.lua`) changes:
 2. Apply visual/theme/tab changes directly (they're identical)
 3. Translate any new keybindings using the mapping table above
 4. Translate any new tool paths (homebrew -> scoop/winget/PATH)
+
+Shared configs (nvim, starship) are used directly from `dot_config/` — just redeploy to the Windows paths.
 
 The Windows config intentionally does NOT share a file with macOS/Linux — platform detection in Lua adds fragility. Two files, kept in sync manually, is more reliable.

@@ -46,8 +46,8 @@ config.initial_rows = 40
 -- =============================================================================
 
 config.font = wezterm.font_with_fallback({
-  { family = 'Hack Nerd Font Mono', weight = 'Regular' },
-  { family = 'JetBrains Mono', weight = 'Regular' },
+  'Hack Nerd Font Mono',
+  'JetBrains Mono',
 })
 config.font_size = 12.0  -- slightly smaller than macOS 14.0 for typical Windows DPI
 
@@ -248,6 +248,7 @@ config.keys = {
           end
         end
 
+        -- nvim+Neotree on top, terminal + Claude Code below
         local tab, editor_pane, mux_window = wezterm.mux.spawn_window({
           workspace = label,
           cwd = id,
