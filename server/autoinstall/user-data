@@ -1,0 +1,102 @@
+#cloud-config
+autoinstall:
+  version: 1
+  locale: en_US.UTF-8
+  keyboard:
+    layout: us
+
+  # Install on the eMMC, preserve NVMe RAID array
+  storage:
+    config:
+      - id: mmcblk0
+        type: disk
+        ptable: gpt
+        path: /dev/mmcblk0
+        wipe: superblock-recursive
+        preserve: false
+        grub_device: false
+      - id: mmcblk0p1
+        type: partition
+        device: mmcblk0
+        size: 512M
+        flag: boot
+        grub_device: true
+        preserve: false
+      - id: mmcblk0p1-format
+        type: format
+        volume: mmcblk0p1
+        fstype: fat32
+        preserve: false
+      - id: mmcblk0p1-mount
+        type: mount
+        device: mmcblk0p1-format
+        path: /boot/efi
+      - id: mmcblk0p2
+        type: partition
+        device: mmcblk0
+        size: -1
+        preserve: false
+      - id: mmcblk0p2-format
+        type: format
+        volume: mmcblk0p2
+        fstype: ext4
+        preserve: false
+      - id: mmcblk0p2-mount
+        type: mount
+        device: mmcblk0p2-format
+        path: /
+
+  identity:
+    hostname: ExcellentStore
+    username: tmds
+    # CHANGE THIS PASSWORD AFTER FIRST LOGIN
+    password: "$6$Mwfb4aFiUWuY+oRB$VnhBS2nXPyKBqpVsDN3.UiktOY.9hfE6zfIizJiFb7Ekz.4OOxGBXgI2.OB0mq4TrkqgUB/Q31tTeW1eIGmgn/"
+
+  ssh:
+    install-server: true
+    allow-pw: true
+
+  packages:
+    # Desktop
+    - xfce4
+    - xfce4-goodies
+    - dbus-x11
+    # VNC
+    - tigervnc-standalone-server
+    - tigervnc-common
+    # NAS services
+    - samba
+    - nfs-kernel-server
+    # Admin & monitoring
+    - cockpit
+    - htop
+    - tmux
+    - vim
+    - curl
+    - wget
+    - git
+    - expect
+    # RAID
+    - mdadm
+    # Firewall & security
+    - ufw
+    - unattended-upgrades
+    - apt-listchanges
+    # Network
+    - avahi-daemon
+    - net-tools
+
+  late-commands:
+    # Enable core services
+    - curtin in-target -- systemctl enable ssh
+    - curtin in-target -- systemctl enable cockpit.socket
+    - curtin in-target -- systemctl enable avahi-daemon
+    # Disable sleep/suspend (this is a server)
+    - curtin in-target -- systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target
+    # Disable unnecessary services
+    - curtin in-target -- bash -c 'systemctl disable snapd snapd.socket 2>/dev/null || true'
+    # RAID auto-assembly
+    - curtin in-target -- bash -c 'echo "ARRAY /dev/md/ExcellentStore:raid0 UUID=5b913ff5:c2c12e53:94a68f67:982f78f0" >> /etc/mdadm/mdadm.conf'
+    - curtin in-target -- bash -c 'echo "UUID=62b51ab2-009c-458e-b329-21c1beee766c /mnt/storage ext4 defaults,nofail 0 2" >> /etc/fstab'
+    - curtin in-target -- mkdir -p /mnt/storage
+    - curtin in-target -- update-initramfs -u

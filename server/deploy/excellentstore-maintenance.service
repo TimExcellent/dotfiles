@@ -1,0 +1,7 @@
+[Unit]
+Description=ExcellentStore Weekly Maintenance (upgrade + reboot)
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/opt/excellentstore/bin/run-maintenance

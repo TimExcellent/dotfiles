@@ -1,0 +1,24 @@
+#!/bin/bash
+set -e
+
+logger -t excellentstore-maintenance "Starting weekly maintenance..."
+
+# Update package lists
+apt-get update -qq
+
+# Install all available updates non-interactively
+# --force-confdef/confold: keep existing config files, don't prompt
+DEBIAN_FRONTEND=noninteractive apt-get upgrade -y -qq \
+  -o Dpkg::Options::="--force-confdef" \
+  -o Dpkg::Options::="--force-confold"
+
+# Remove unused packages
+apt-get autoremove -y -qq
+
+# Clean apt cache
+apt-get autoclean -qq
+
+logger -t excellentstore-maintenance "Updates applied, rebooting..."
+
+# Reboot — all services auto-start via systemd
+/sbin/reboot
