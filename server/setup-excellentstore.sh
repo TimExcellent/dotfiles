@@ -279,8 +279,14 @@ ufw allow from $LAN_SUBNET to any port 111,2049 proto udp comment "NFS UDP"
 # Cockpit — LAN only
 ufw allow from $LAN_SUBNET to any port 9090 proto tcp comment "Cockpit"
 
-# Tailscale interface (when installed)
-ufw allow in on tailscale0 2>/dev/null || true
+# ZeroTier — SSH only (no SMB/NFS/Cockpit over VPN)
+ZT_IF=$(ip link show | grep -o 'zt[a-z0-9]*' | head -1)
+if [ -n "$ZT_IF" ]; then
+    ufw allow in on "$ZT_IF" to any port 22 proto tcp comment "ZeroTier SSH only"
+else
+    echo "  Note: ZeroTier interface not yet active. After joining a network, run:"
+    echo "  sudo ufw allow in on ztXXXXXXXX to any port 22 proto tcp comment 'ZeroTier SSH only'"
+fi
 
 ufw --force enable
 echo "  Firewall enabled."
@@ -375,7 +381,7 @@ systemctl daemon-reload
 systemctl enable --now excellentstore-maintenance.timer
 
 # ── 13. ZeroTier VPN ──────────────────────────────────────────────
-echo "[13/14] Installing ZeroTier..."
+echo "[13/15] Installing ZeroTier..."
 if ! command -v zerotier-cli &>/dev/null; then
     curl -s https://install.zerotier.com | bash
 fi
@@ -383,18 +389,23 @@ systemctl enable --now zerotier-one
 echo "  ZeroTier installed. Join a network with:"
 echo "  sudo zerotier-cli join <network-id>"
 
-# Allow ZeroTier interface through firewall (once joined and interface appears)
-ZT_IF=$(ip link show | grep -o 'zt[a-z0-9]*' | head -1)
-if [ -n "$ZT_IF" ]; then
-    ufw allow in on "$ZT_IF" comment "ZeroTier"
-    echo "  Firewall opened for ZeroTier interface $ZT_IF"
-else
-    echo "  Note: Join a ZeroTier network, then run:"
-    echo "  sudo ufw allow in on ztXXXXXXXX comment 'ZeroTier'"
-fi
+# ZeroTier firewall rule already added in UFW section (SSH only on ZT interface)
 
-# ── 14. Avahi/mDNS + Cockpit ─────────────────────────────────────
-echo "[14/14] Enabling mDNS and Cockpit..."
+# ── 14. Passwordless sudo for monitoring ─────────────────────────
+echo "[14/15] Configuring passwordless sudo for monitoring..."
+cat > /etc/sudoers.d/monitoring << 'SUDOEOF'
+# Allow tmds to run read-only monitoring commands without password
+tmds ALL=(root) NOPASSWD: /usr/sbin/ufw status, /usr/sbin/ufw status numbered, /usr/sbin/ufw status verbose
+tmds ALL=(root) NOPASSWD: /usr/sbin/mdadm --detail /dev/md/*
+tmds ALL=(root) NOPASSWD: /usr/bin/systemctl status *
+tmds ALL=(root) NOPASSWD: /usr/bin/journalctl *
+tmds ALL=(root) NOPASSWD: /usr/sbin/smartctl -a /dev/nvme*
+SUDOEOF
+chmod 440 /etc/sudoers.d/monitoring
+visudo -c || { echo "SUDOERS CONFIG INVALID — removing"; rm /etc/sudoers.d/monitoring; }
+
+# ── 15. Avahi/mDNS + Cockpit ─────────────────────────────────────
+echo "[15/15] Enabling mDNS and Cockpit..."
 systemctl enable --now avahi-daemon
 systemctl enable cockpit.socket
 
@@ -420,5 +431,5 @@ echo "  1. Set VNC password:  sudo -u tmds vncpasswd"
 echo "  2. Enable VNC:        sudo systemctl enable --now vncserver@1"
 echo "  3. Copy SSH key:      ssh-copy-id -p $SSH_PORT tmds@ExcellentStore.local"
 echo "  4. Join ZeroTier:     sudo zerotier-cli join <network-id>"
-echo "  5. Open ZT firewall:  sudo ufw allow in on ztXXXXXXXX comment 'ZeroTier'"
+echo "  5. Authorize node in ZeroTier Central, then verify SSH works via ZT IP"
 echo ""
