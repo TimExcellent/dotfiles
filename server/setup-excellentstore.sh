@@ -41,6 +41,8 @@ echo "[3/13] Disabling unnecessary services..."
 systemctl disable --now apache2 2>/dev/null || true
 systemctl disable --now postfix 2>/dev/null || true
 systemctl disable --now snapd snapd.socket snapd.seeded.service 2>/dev/null || true
+systemctl disable --now bluetooth 2>/dev/null || true
+systemctl disable --now nfs-blkmap 2>/dev/null || true
 
 # ── 4. Disable sleep/suspend (this is a server) ──────────────────
 echo "[4/13] Disabling sleep/suspend..."
@@ -256,6 +258,10 @@ systemctl daemon-reload
 echo "  VNC service created. Set password and enable with:"
 echo "  sudo -u $USER vncpasswd && sudo systemctl enable --now vncserver@1"
 
+# Set xfce4-terminal as default terminal emulator
+update-alternatives --install /usr/bin/x-terminal-emulator x-terminal-emulator /usr/bin/xfce4-terminal 50
+update-alternatives --set x-terminal-emulator /usr/bin/xfce4-terminal
+
 # ── 10. UFW Firewall ─────────────────────────────────────────────
 echo "[10/13] Configuring firewall..."
 ufw --force reset
@@ -368,8 +374,27 @@ TMREOF
 systemctl daemon-reload
 systemctl enable --now excellentstore-maintenance.timer
 
-# ── 13. Avahi/mDNS + Cockpit ─────────────────────────────────────
-echo "[13/13] Enabling mDNS and Cockpit..."
+# ── 13. ZeroTier VPN ──────────────────────────────────────────────
+echo "[13/14] Installing ZeroTier..."
+if ! command -v zerotier-cli &>/dev/null; then
+    curl -s https://install.zerotier.com | bash
+fi
+systemctl enable --now zerotier-one
+echo "  ZeroTier installed. Join a network with:"
+echo "  sudo zerotier-cli join <network-id>"
+
+# Allow ZeroTier interface through firewall (once joined and interface appears)
+ZT_IF=$(ip link show | grep -o 'zt[a-z0-9]*' | head -1)
+if [ -n "$ZT_IF" ]; then
+    ufw allow in on "$ZT_IF" comment "ZeroTier"
+    echo "  Firewall opened for ZeroTier interface $ZT_IF"
+else
+    echo "  Note: Join a ZeroTier network, then run:"
+    echo "  sudo ufw allow in on ztXXXXXXXX comment 'ZeroTier'"
+fi
+
+# ── 14. Avahi/mDNS + Cockpit ─────────────────────────────────────
+echo "[14/14] Enabling mDNS and Cockpit..."
 systemctl enable --now avahi-daemon
 systemctl enable cockpit.socket
 
@@ -394,5 +419,6 @@ echo "Remaining manual steps:"
 echo "  1. Set VNC password:  sudo -u tmds vncpasswd"
 echo "  2. Enable VNC:        sudo systemctl enable --now vncserver@1"
 echo "  3. Copy SSH key:      ssh-copy-id -p $SSH_PORT tmds@ExcellentStore.local"
-echo "  4. Install Tailscale: curl -fsSL https://tailscale.com/install.sh | sh"
+echo "  4. Join ZeroTier:     sudo zerotier-cli join <network-id>"
+echo "  5. Open ZT firewall:  sudo ufw allow in on ztXXXXXXXX comment 'ZeroTier'"
 echo ""

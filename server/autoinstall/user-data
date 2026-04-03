@@ -95,8 +95,18 @@ autoinstall:
     - curtin in-target -- systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target
     # Disable unnecessary services
     - curtin in-target -- bash -c 'systemctl disable snapd snapd.socket 2>/dev/null || true'
+    - curtin in-target -- bash -c 'systemctl disable bluetooth 2>/dev/null || true'
+    - curtin in-target -- bash -c 'systemctl disable nfs-blkmap 2>/dev/null || true'
+    # Disable sleep via logind
+    - curtin in-target -- mkdir -p /etc/systemd/logind.conf.d
+    - curtin in-target -- bash -c 'printf "[Login]\nHandleSuspendKey=ignore\nHandleHibernateKey=ignore\nHandleLidSwitch=ignore\nHandleLidSwitchExternalPower=ignore\nHandleLidSwitchDocked=ignore\nIdleAction=ignore\n" > /etc/systemd/logind.conf.d/nosuspend.conf'
+    # Set xfce4-terminal as default
+    - curtin in-target -- bash -c 'update-alternatives --install /usr/bin/x-terminal-emulator x-terminal-emulator /usr/bin/xfce4-terminal 50 2>/dev/null || true'
     # RAID auto-assembly
     - curtin in-target -- bash -c 'echo "ARRAY /dev/md/ExcellentStore:raid0 UUID=5b913ff5:c2c12e53:94a68f67:982f78f0" >> /etc/mdadm/mdadm.conf'
     - curtin in-target -- bash -c 'echo "UUID=62b51ab2-009c-458e-b329-21c1beee766c /mnt/storage ext4 defaults,nofail 0 2" >> /etc/fstab'
     - curtin in-target -- mkdir -p /mnt/storage
     - curtin in-target -- update-initramfs -u
+    # Install ZeroTier
+    - curtin in-target -- bash -c 'curl -s https://install.zerotier.com | bash'
+    - curtin in-target -- systemctl enable zerotier-one
