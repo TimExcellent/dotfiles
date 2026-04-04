@@ -393,18 +393,16 @@ echo "  sudo zerotier-cli join <network-id>"
 
 # ZeroTier firewall rule already added in UFW section (SSH only on ZT interface)
 
-# ── 14. Passwordless sudo for monitoring ─────────────────────────
-echo "[14/15] Configuring passwordless sudo for monitoring..."
-cat > /etc/sudoers.d/monitoring << 'SUDOEOF'
-# Allow tmds to run read-only monitoring commands without password
-tmds ALL=(root) NOPASSWD: /usr/sbin/ufw status, /usr/sbin/ufw status numbered, /usr/sbin/ufw status verbose
-tmds ALL=(root) NOPASSWD: /usr/sbin/mdadm --detail /dev/md/*
-tmds ALL=(root) NOPASSWD: /usr/bin/systemctl status *
-tmds ALL=(root) NOPASSWD: /usr/bin/journalctl *
-tmds ALL=(root) NOPASSWD: /usr/sbin/smartctl -a /dev/nvme*
+# ── 14. Passwordless sudo ────────────────────────────────────────
+echo "[14/15] Configuring passwordless sudo..."
+cat > /etc/sudoers.d/tmds-nopasswd << 'SUDOEOF'
+# SSH key-only auth is enforced — password not needed for sudo either
+tmds ALL=(ALL) NOPASSWD: ALL
 SUDOEOF
-chmod 440 /etc/sudoers.d/monitoring
-visudo -c || { echo "SUDOERS CONFIG INVALID — removing"; rm /etc/sudoers.d/monitoring; }
+chmod 440 /etc/sudoers.d/tmds-nopasswd
+visudo -c || { echo "SUDOERS CONFIG INVALID — removing"; rm /etc/sudoers.d/tmds-nopasswd; }
+# Clean up old monitoring-only sudoers file if present
+rm -f /etc/sudoers.d/monitoring
 
 # ── 15. Avahi/mDNS + Cockpit ─────────────────────────────────────
 echo "[15/15] Enabling mDNS and Cockpit..."

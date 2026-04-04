@@ -34,12 +34,7 @@ ssh -o ConnectTimeout=3 excellentstore "COMMAND" 2>/dev/null || ssh -o ConnectTi
 
 ## Passwordless sudo
 
-The following monitoring commands run without a password via `/etc/sudoers.d/monitoring`:
-- `sudo ufw status [numbered|verbose]`
-- `sudo mdadm --detail /dev/md*`
-- `sudo systemctl status *`
-- `sudo journalctl *`
-- `sudo smartctl -a /dev/nvme*`
+Full passwordless sudo for tmds via `/etc/sudoers.d/tmds-nopasswd` — SSH key-only auth is enforced, so no password is needed for sudo.
 
 ## Services
 
