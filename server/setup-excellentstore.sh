@@ -279,13 +279,15 @@ ufw allow from $LAN_SUBNET to any port 111,2049 proto udp comment "NFS UDP"
 # Cockpit — LAN only
 ufw allow from $LAN_SUBNET to any port 9090 proto tcp comment "Cockpit"
 
-# ZeroTier — SSH only (no SMB/NFS/Cockpit over VPN)
+# ZeroTier — SSH + SMB (trusted network)
 ZT_IF=$(ip link show | grep -o 'zt[a-z0-9]*' | head -1)
 if [ -n "$ZT_IF" ]; then
-    ufw allow in on "$ZT_IF" to any port 22 proto tcp comment "ZeroTier SSH only"
+    ufw allow in on "$ZT_IF" to any port 22 proto tcp comment "ZeroTier SSH"
+    ufw allow in on "$ZT_IF" to any port 139,445 proto tcp comment "ZeroTier SMB"
 else
     echo "  Note: ZeroTier interface not yet active. After joining a network, run:"
-    echo "  sudo ufw allow in on ztXXXXXXXX to any port 22 proto tcp comment 'ZeroTier SSH only'"
+    echo "  sudo ufw allow in on ztXXXXXXXX to any port 22 proto tcp comment 'ZeroTier SSH'"
+    echo "  sudo ufw allow in on ztXXXXXXXX to any port 139,445 proto tcp comment 'ZeroTier SMB'"
 fi
 
 ufw --force enable

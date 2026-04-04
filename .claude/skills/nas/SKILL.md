@@ -46,7 +46,7 @@ The following monitoring commands run without a password via `/etc/sudoers.d/mon
 | Service | Port | Access | Check command |
 |---------|------|--------|---------------|
 | SSH | 58276 (LAN), 22 (ZeroTier) | Anywhere / ZeroTier | `systemctl status ssh` |
-| Samba (SMB) | 139, 445 | LAN only | `sudo systemctl status smbd nmbd` |
+| Samba (SMB) | 139, 445 | LAN + ZeroTier | `sudo systemctl status smbd nmbd` |
 | NFS | 111, 2049 | LAN only | `sudo systemctl status nfs-kernel-server` |
 | Cockpit | 9090 | LAN only | `sudo systemctl status cockpit.socket` |
 | TigerVNC | 5901 (localhost) | SSH tunnel only | `sudo systemctl status vncserver@1` |
@@ -55,7 +55,8 @@ The following monitoring commands run without a password via `/etc/sudoers.d/mon
 
 ### Accessing services from Mac
 
-- **SMB**: `smb://ExcellentStore.local/bigdrive` or `smb://192.168.50.60/bigdrive`
+- **SMB (LAN)**: `smb://ExcellentStore.local/bigdrive` or `smb://192.168.50.60/bigdrive`
+- **SMB (Remote)**: `smb://10.242.237.138/bigdrive` (via ZeroTier)
 - **NFS**: `mount ExcellentStore.local:/mnt/storage /mnt/nas`
 - **Cockpit**: `https://ExcellentStore.local:9090` (LAN only)
 - **VNC (LAN)**: `~/Desktop/VNC-ExcellentStore.command` — tunnels via SSH port 58276
@@ -67,6 +68,7 @@ Default deny incoming, allow outgoing. Rules:
 - SSH 58276/tcp from anywhere
 - SSH 22/tcp on ZeroTier interface only
 - SMB 139,445/tcp from 192.168.50.0/24
+- SMB 139,445/tcp on ZeroTier interface
 - NFS 111,2049/tcp+udp from 192.168.50.0/24
 - Cockpit 9090/tcp from 192.168.50.0/24
 
