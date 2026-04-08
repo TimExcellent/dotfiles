@@ -172,3 +172,15 @@ Neovim config is tracked in `dot_config/nvim/` and deployed to `~/.config/nvim/`
 - Don't assume tools are installed - always check with `command -v`
 - Don't use `chezmoi edit` - it's inconsistent, edit files directly
 - Don't add Oh-My-Zsh or similar frameworks - this is a minimal setup
+
+### Windows (Second-Class)
+
+The `windows/` directory contains Windows-adapted versions of configs. These are maintained separately — not via chezmoi templates or platform detection.
+
+| Source File | Target Location | Purpose |
+|------------|-----------------|---------|
+| `windows/dot_wezterm.lua` | `%USERPROFILE%\.wezterm.lua` | WezTerm config (ALT replaces CMD, Git Bash default) |
+
+**Sync protocol:** When changing the primary `dot_wezterm.lua`, manually port visual/theme changes to `windows/dot_wezterm.lua`. Keybindings require translation (CMD→ALT). See `windows/SETUP.md` for the mapping table.
+
+**Do not** merge Windows and macOS/Linux configs into a single file with platform detection — two separate files kept in manual sync is the intended design.

@@ -1,0 +1,156 @@
+#!/bin/bash
+# =============================================================================
+# Bash Configuration — Windows (mirrors macOS/Linux zshrc)
+# =============================================================================
+
+# === ENVIRONMENT ===
+export EDITOR="nvim"
+export VISUAL="nvim"
+
+# === HISTORY ===
+HISTSIZE=50000
+HISTFILESIZE=50000
+HISTCONTROL=ignoreboth:erasedups
+shopt -s histappend
+
+# === OPTIONS ===
+shopt -s autocd cdspell dirspell
+
+# =============================================================================
+# MODERN CLI TOOLS
+# =============================================================================
+
+# eza (better ls)
+if command -v eza &>/dev/null; then
+  alias ls='eza --icons'
+  alias ll='eza -la --icons --git'
+  alias la='eza -a --icons'
+  alias lt='eza --tree --level=2 --icons'
+else
+  alias ll='ls -lah'
+  alias la='ls -A'
+fi
+
+# bat (better cat)
+if command -v bat &>/dev/null; then
+  alias cat='bat --paging=never'
+  alias catp='bat'
+  export BAT_THEME="gruvbox-dark"
+fi
+
+# fd (better find) and ripgrep (better grep)
+command -v fd &>/dev/null && alias find='fd'
+command -v rg &>/dev/null && alias grep='rg'
+
+# =============================================================================
+# TUI APPLICATIONS
+# =============================================================================
+
+command -v lazygit &>/dev/null && alias lg='lazygit'
+command -v yazi &>/dev/null && alias y='yazi'
+command -v glow &>/dev/null && alias mdcat='glow' && alias mdview='glow -p'
+command -v lazydocker &>/dev/null && alias lzd='lazydocker'
+
+# =============================================================================
+# NAVIGATION
+# =============================================================================
+
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+
+# Zoxide (smart cd)
+command -v zoxide &>/dev/null && eval "$(zoxide init bash --cmd z)"
+
+# =============================================================================
+# GIT
+# =============================================================================
+
+alias g='git'
+alias gs='git status'
+alias gd='git diff'
+alias gds='git diff --staged'
+alias ga='git add'
+alias gaa='git add .'
+alias gc='git commit'
+alias gcm='git commit -m'
+alias gp='git push'
+alias gpl='git pull'
+alias gl='git log --oneline -15'
+alias glg='git log --graph --oneline --decorate'
+alias gb='git branch'
+alias gco='git checkout'
+alias gcb='git checkout -b'
+
+# =============================================================================
+# FZF
+# =============================================================================
+
+if command -v fzf &>/dev/null; then
+  if command -v fd &>/dev/null; then
+    export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+    export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+    export FZF_ALT_C_COMMAND='fd --type d --hidden --follow --exclude .git'
+  fi
+  export FZF_DEFAULT_OPTS='
+    --color=bg+:#3c3836,bg:#282828,spinner:#fb4934,hl:#928374
+    --color=fg:#ebdbb2,header:#928374,info:#8ec07c,pointer:#fb4934
+    --color=marker:#fb4934,fg+:#ebdbb2,prompt:#fb4934,hl+:#fb4934
+    --height 40% --layout=reverse --border'
+  eval "$(fzf --bash)" 2>/dev/null
+fi
+
+# =============================================================================
+# ATUIN & STARSHIP
+# =============================================================================
+
+command -v atuin &>/dev/null && eval "$(atuin init bash)"
+command -v starship &>/dev/null && eval "$(starship init bash)"
+
+# =============================================================================
+# FUNCTIONS
+# =============================================================================
+
+help() {
+  echo "=== Command Discovery ==="
+  echo "  tldr     - Simplified man pages"
+  echo "  Ctrl+R   - History search (Atuin)"
+  echo ""
+  echo "=== Navigation ==="
+  echo "  z <dir>  - Smart cd"
+  echo "  zi       - Interactive directory picker"
+  echo "  y        - Visual file manager (yazi)"
+  echo ""
+  echo "=== Files ==="
+  echo "  ll       - List with icons and git"
+  echo "  lt       - Tree view"
+  echo "  fd       - Find files"
+  echo "  rg       - Search in files"
+  echo ""
+  echo "=== Visual TUI Apps ==="
+  echo "  lg       - Git interface (lazygit)"
+  echo "  btop     - System monitor"
+  echo "  y        - File manager (yazi)"
+  echo "  mdcat    - Markdown viewer (glow)"
+  echo ""
+  echo "=== AI ==="
+  echo "  claude   - Claude Code"
+}
+
+mkcd() { mkdir -p "$1" && cd "$1"; }
+
+vf() {
+  local file
+  file=$(fd --type f | fzf --preview 'bat --style=numbers --color=always {}')
+  [[ -n "$file" ]] && nvim "$file"
+}
+
+# =============================================================================
+# ALIASES
+# =============================================================================
+
+alias reload='source ~/.bashrc'
+alias v='nvim'
+alias vim='nvim'
+alias wezconfig='$EDITOR ~/.wezterm.lua'
+alias starconfig='$EDITOR ~/.config/starship.toml'
