@@ -441,10 +441,14 @@ ZT_IF=$(ip link show | grep -o 'zt[a-z0-9]*' | head -1)
 if [ -n "$ZT_IF" ]; then
     ufw allow in on "$ZT_IF" to any port 22 proto tcp comment "ZeroTier SSH"
     ufw allow in on "$ZT_IF" to any port 139,445 proto tcp comment "ZeroTier SMB"
+    ufw allow in on "$ZT_IF" to any port 7878,8080,8686,8989,9696 proto tcp comment "ZeroTier Media Stack"
+    ufw allow in on "$ZT_IF" to any port 32400 proto tcp comment "ZeroTier Plex"
 else
     echo "  Note: ZeroTier interface not yet active. After joining a network, run:"
     echo "  sudo ufw allow in on ztXXXXXXXX to any port 22 proto tcp comment 'ZeroTier SSH'"
     echo "  sudo ufw allow in on ztXXXXXXXX to any port 139,445 proto tcp comment 'ZeroTier SMB'"
+    echo "  sudo ufw allow in on ztXXXXXXXX to any port 7878,8080,8686,8989,9696 proto tcp comment 'ZeroTier Media Stack'"
+    echo "  sudo ufw allow in on ztXXXXXXXX to any port 32400 proto tcp comment 'ZeroTier Plex'"
 fi
 
 ufw --force enable
