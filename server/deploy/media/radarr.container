@@ -1,0 +1,20 @@
+[Unit]
+Description=Radarr movie automation
+
+[Container]
+ContainerName=radarr
+Image=docker.io/linuxserver/radarr:latest
+Network=medianet.network
+PublishPort=7878:7878
+Volume=/mnt/storage/media/appdata/radarr:/config
+Volume=/mnt/storage/media:/data
+Environment=PUID=1000
+Environment=PGID=1000
+Environment=TZ=Asia/Singapore
+AutoUpdate=registry
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

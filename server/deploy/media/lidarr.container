@@ -1,0 +1,20 @@
+[Unit]
+Description=Lidarr music automation
+
+[Container]
+ContainerName=lidarr
+Image=docker.io/linuxserver/lidarr:latest
+Network=medianet.network
+PublishPort=8686:8686
+Volume=/mnt/storage/media/appdata/lidarr:/config
+Volume=/mnt/storage/media:/data
+Environment=PUID=1000
+Environment=PGID=1000
+Environment=TZ=Asia/Singapore
+AutoUpdate=registry
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

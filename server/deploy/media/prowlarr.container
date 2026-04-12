@@ -1,0 +1,19 @@
+[Unit]
+Description=Prowlarr indexer manager
+
+[Container]
+ContainerName=prowlarr
+Image=docker.io/linuxserver/prowlarr:latest
+Network=medianet.network
+PublishPort=9696:9696
+Volume=/mnt/storage/media/appdata/prowlarr:/config
+Environment=PUID=1000
+Environment=PGID=1000
+Environment=TZ=Asia/Singapore
+AutoUpdate=registry
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

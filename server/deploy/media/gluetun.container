@@ -1,0 +1,24 @@
+[Unit]
+Description=Gluetun VPN gateway (ProtonVPN/WireGuard)
+
+[Container]
+ContainerName=gluetun
+Image=docker.io/qmcgaw/gluetun:latest
+PublishPort=8080:8080
+Volume=/mnt/storage/media/appdata/gluetun:/gluetun
+AddCapability=NET_ADMIN
+AddDevice=/dev/net/tun
+Environment=VPN_SERVICE_PROVIDER=custom
+Environment=VPN_TYPE=wireguard
+Environment=VPN_ENDPOINT_IP=149.36.48.129
+Environment=VPN_ENDPOINT_PORT=51820
+Environment=WIREGUARD_PUBLIC_KEY=DzAE6lLRbKUNuxFkuN2gI+sokPARCKYw/E1DyaXQWHc=
+Environment=WIREGUARD_PRIVATE_KEY=iBShw64xgUVlCuQmZVy2tCzvCvDIVrg82+NKjevPdlM=
+Environment=WIREGUARD_ADDRESSES=10.2.0.2/32
+AutoUpdate=registry
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target
