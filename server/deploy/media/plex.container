@@ -4,8 +4,7 @@ Description=Plex Media Server
 [Container]
 ContainerName=plex
 Image=docker.io/plexinc/pms-docker:latest
-Network=medianet.network
-PublishPort=32400:32400
+Network=host
 Volume=/mnt/storage/media/appdata/plex:/config
 Volume=/mnt/storage/media:/data
 Environment=PUID=1000

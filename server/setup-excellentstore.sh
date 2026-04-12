@@ -612,11 +612,12 @@ mkdir -p "$QUADLET_ROOT_DIR"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 if [ -d "$SCRIPT_DIR/deploy/media" ]; then
-    # Rootful: gluetun + qbittorrent (VPN needs kernel access)
+    # Rootful: gluetun + qbittorrent (VPN needs kernel access), plex (host networking for LAN speed)
     cp "$SCRIPT_DIR/deploy/media"/gluetun.container "$QUADLET_ROOT_DIR/"
     cp "$SCRIPT_DIR/deploy/media"/qbittorrent.container "$QUADLET_ROOT_DIR/"
-    # Rootless: everything else
-    for f in prowlarr sonarr radarr lidarr plex; do
+    cp "$SCRIPT_DIR/deploy/media"/plex.container "$QUADLET_ROOT_DIR/"
+    # Rootless: arr apps
+    for f in prowlarr sonarr radarr lidarr; do
         cp "$SCRIPT_DIR/deploy/media/$f.container" "$QUADLET_USER_DIR/"
     done
     cp "$SCRIPT_DIR/deploy/media"/medianet.network "$QUADLET_USER_DIR/"
@@ -636,9 +637,9 @@ echo "  Podman installed. Media stack Quadlet files deployed."
 echo "  Before starting containers:"
 echo "    1. Set ProtonVPN WireGuard key in $QUADLET_ROOT_DIR/gluetun.container"
 echo "    2. Get Plex claim token from https://plex.tv/claim, add to $QUADLET_USER_DIR/plex.container"
-echo "    3. Start VPN + downloads:  systemctl daemon-reload && systemctl start gluetun qbittorrent"
-echo "    4. Start media apps:       sudo -u $USER XDG_RUNTIME_DIR=/run/user/\$(id -u $USER) systemctl --user daemon-reload"
-echo "    5.                         sudo -u $USER XDG_RUNTIME_DIR=/run/user/\$(id -u $USER) systemctl --user start prowlarr sonarr radarr lidarr plex"
+echo "    3. Start VPN + downloads + Plex: systemctl daemon-reload && systemctl start gluetun qbittorrent plex"
+echo "    4. Start media apps:             sudo -u $USER XDG_RUNTIME_DIR=/run/user/\$(id -u $USER) systemctl --user daemon-reload"
+echo "    5.                               sudo -u $USER XDG_RUNTIME_DIR=/run/user/\$(id -u $USER) systemctl --user start prowlarr sonarr radarr lidarr"
 
 # ── Summary ──────────────────────────────────────────────────────
 echo ""
@@ -674,6 +675,6 @@ echo "  4. Join ZeroTier:     sudo zerotier-cli join <network-id>"
 echo "  5. Authorize node in ZeroTier Central, then verify SSH works via ZT IP"
 echo "  6. Set ProtonVPN WireGuard key in /etc/containers/systemd/gluetun.container"
 echo "  7. Get Plex claim token from https://plex.tv/claim"
-echo "  8. Start VPN+downloads: sudo systemctl start gluetun qbittorrent"
-echo "  9. Start media apps:    systemctl --user start prowlarr sonarr radarr lidarr plex"
+echo "  8. Start VPN+downloads+Plex: sudo systemctl start gluetun qbittorrent plex"
+echo "  9. Start media apps:        systemctl --user start prowlarr sonarr radarr lidarr"
 echo ""
